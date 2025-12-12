@@ -29,7 +29,10 @@
     color:#0065B7;
   }
 
-  h2 { text-align:center; margin-bottom:20px; }
+  h2 {
+    text-align:center;
+    margin-bottom:20px;
+  }
 
   .input-box {
     background:#fafafa;
@@ -39,7 +42,11 @@
     margin:0 auto;
   }
 
-  label { display:block; margin-top:15px; font-weight:bold; }
+  label {
+    display:block;
+    margin-top:15px;
+    font-weight:bold;
+  }
 
   input, select {
     width:100%;
@@ -61,20 +68,25 @@
     overflow-y:auto;
     z-index:50;
   }
+  .suggestion-box div {
+    padding:10px;
+    cursor:pointer;
+  }
+  .suggestion-box div:hover {
+    background:#eaf4ff;
+  }
 
-  .suggestion-box div { padding:10px; cursor:pointer; }
-  .suggestion-box div:hover { background:#eaf4ff; }
-
-  /* Desktop table */
-  .result-wrapper-table { 
-    display:none; 
-    overflow-x:auto; 
-    margin-top:25px;
+  /* Scrollable table container */
+  .table-scroll {
+    overflow-x:auto;
+    margin-top:20px;
   }
 
   table {
-    width:100%;
+    width:900px;
+    min-width:900px;
     border-collapse:collapse;
+    background:white;
   }
 
   th {
@@ -82,50 +94,16 @@
     color:white;
     padding:10px;
     text-align:left;
+    white-space:nowrap;
   }
 
   td {
     padding:10px;
     border-bottom:1px solid #e2ecff;
+    white-space:nowrap;
   }
 
-  /* MOBILE – Pivot Table */
-  .mobile-wrapper {
-    display:none;
-    background:#f7fbff;
-    padding:15px;
-    margin-top:20px;
-    border-radius:12px;
-  }
-
-  .mobile-row {
-    display:flex;
-    border-bottom:1px solid #dce8ff;
-    padding:10px 5px;
-    font-size:15px;
-  }
-
-  .mobile-left {
-    width:35%;
-    font-weight:bold;
-  }
-
-  .mobile-right {
-    width:65%;
-    display:flex;
-    gap:10px;
-  }
-
-  /* Show only on small screens */
-  @media (max-width:600px) {
-    .result-wrapper-table { display:none !important; }
-    .mobile-wrapper { display:block !important; }
-  }
-
-  @media (min-width:601px) {
-    .result-wrapper-table { display:block !important; }
-    .mobile-wrapper { display:none !important; }
-  }
+  td:nth-child(6) { font-weight:bold; }
 </style>
 </head>
 
@@ -144,7 +122,7 @@
     </div>
 
     <label>POD</label>
-    <div style="position:relative%;">
+    <div style="position:relative;">
       <input id="podInput" type="text" placeholder="Type POD...">
       <div id="podList" class="suggestion-box"></div>
     </div>
@@ -156,37 +134,37 @@
 
   </div>
 
-  <!-- DESKTOP FULL TABLE -->
-  <div class="result-wrapper-table" id="desktopTableBox">
-    <table>
-      <thead>
-        <tr>
-          <th>Line</th>
-          <th>Freight</th>
-          <th>BAF</th>
-          <th>Sur.</th>
-          <th>Local</th>
-          <th>Total</th>
-          <th>Remark</th>
-          <th>Route</th>
-          <th>Validity</th>
-        </tr>
-      </thead>
-      <tbody id="desktopBody"></tbody>
-    </table>
+  <!-- Scrollable output -->
+  <div id="resultBox" style="display:none;">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Line</th>
+            <th>Freight</th>
+            <th>BAF</th>
+            <th>Sur.</th>
+            <th>Local</th>
+            <th>Total</th>
+            <th>Remark</th>
+            <th>Route</th>
+            <th>Validity</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+    </div>
   </div>
-
-  <!-- MOBILE PIVOT TABLE -->
-  <div class="mobile-wrapper" id="mobileBox"></div>
 
 </div>
 
-
 <script>
+// 🔗 YOUR BACKEND URL:
 const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
+
 let data = [];
 
-// Load freight JSON from App Script
+// Load data
 async function loadData() {
   const res = await fetch(API_URL);
   data = await res.json();
@@ -200,10 +178,8 @@ async function loadData() {
 
   const conSel = document.getElementById("container");
   cons.forEach(c => conSel.innerHTML += `<option>${c}</option>`);
-
   conSel.onchange = updateResults;
 }
-
 
 function setupTypeAhead(inputId, listId, items) {
   const input = document.getElementById(inputId);
@@ -230,38 +206,32 @@ function setupTypeAhead(inputId, listId, items) {
   input.onblur = () => setTimeout(() => box.style.display="none", 150);
 }
 
-
-
 function updateResults() {
   const pol  = polInput.value.trim().toLowerCase();
   const pod  = podInput.value.trim().toLowerCase();
   const cont = container.value.trim().toLowerCase();
 
+  // SHOW ALL MATCHING ROWS
   const rows = data.filter(r =>
-    r.pol.toLowerCase().includes(pol) &&
-    r.pod.toLowerCase().includes(pod) &&
+    r.pol.toLowerCase() === pol &&
+    r.pod.toLowerCase() === pod &&
     r.container.toLowerCase() === cont
   );
 
-  const desktopBox = document.getElementById("desktopTableBox");
-  const desktopBody = document.getElementById("desktopBody");
-  const mobileBox = document.getElementById("mobileBox");
+  const box  = document.getElementById("resultBox");
+  const body = document.getElementById("resultBody");
 
   if (!rows.length) {
-    desktopBox.style.display = "none";
-    mobileBox.innerHTML = "";
+    box.style.display="none";
+    body.innerHTML="";
     return;
   }
 
-  // → Show desktop only when results come
-  desktopBox.style.display = "block";
-
-  // Fill desktop table
-  desktopBody.innerHTML = rows.map(r => `
+  body.innerHTML = rows.map(r => `
     <tr>
       <td>${r.carrier}</td>
       <td>${r.freight}</td>
-      <td>${r.obs}</td>
+      <td>${r.obs_baf}</td>
       <td>${r.surcharges}</td>
       <td>${r.local}</td>
       <td>${r.total}</td>
@@ -271,26 +241,7 @@ function updateResults() {
     </tr>
   `).join("");
 
-  // MOBILE PIVOT FORMAT  
-  const carriers = rows.map(r => r.carrier);
-  const freight  = rows.map(r => r.freight);
-  const obs      = rows.map(r => r.obs);
-  const sur      = rows.map(r => r.surcharges);
-  const local    = rows.map(r => r.local);
-  const total    = rows.map(r => r.total);
-  const routing  = rows.map(r => r.routing);
-  const valid    = rows.map(r => r.validity);
-
-  mobileBox.innerHTML = `
-    <div class="mobile-row"><div class="mobile-left">Carrier</div><div class="mobile-right">${carriers.join(" | ")}</div></div>
-    <div class="mobile-row"><div class="mobile-left">Freight</div><div class="mobile-right">${freight.join(" | ")}</div></div>
-    <div class="mobile-row"><div class="mobile-left">BAF</div><div class="mobile-right">${obs.join(" | ")}</div></div>
-    <div class="mobile-row"><div class="mobile-left">Sur.</div><div class="mobile-right">${sur.join(" | ")}</div></div>
-    <div class="mobile-row"><div class="mobile-left">Local</div><div class="mobile-right">${local.join(" | ")}</div></div>
-    <div class="mobile-row"><div class="mobile-left">Total</div><div class="mobile-right">${total.join(" | ")}</div></div>
-    <div class="mobile-row"><div class="mobile-left">Routing</div><div class="mobile-right">${routing.join(" | ")}</div></div>
-    <div class="mobile-row"><div class="mobile-left">Validity</div><div class="mobile-right">${valid.join(" | ")}</div></div>
-  `;
+  box.style.display="block";
 }
 
 loadData();
