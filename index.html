@@ -20,27 +20,22 @@
     padding:20px;
     border-radius:14px;
     box-shadow:0 4px 20px rgba(0,0,0,0.12);
-    overflow:visible;
   }
 
+  /* ONLY SMALL, CLEAN HEADING FIX APPLIED */
   .logo-text {
     text-align:center;
-    font-size:22px;
-    font-weight:800;
+    font-size:22px;       /* smaller & professional */
+    font-weight:900;
     color:#0065B7;
-    white-space:nowrap;
-    margin-bottom:6px;
+    white-space:nowrap;   /* stays on one line */
   }
 
   h2 {
     text-align:center;
-    font-size:18px;
-    margin-bottom:18px;
-  }
-
-  @media (max-width:480px) {
-    .logo-text { font-size:18px; }
-    h2 { font-size:16px; }
+    font-size:18px;       /* clean size */
+    margin-bottom:20px;
+    margin-top:6px;
   }
 
   .input-box {
@@ -57,16 +52,8 @@
     font-weight:bold;
   }
 
-  /* WRAPPER FIX FOR DROPDOWN */
-  .input-wrapper {
-    position:relative; /* FIX: dropdown not visible */
+  input, select {
     width:100%;
-  }
-
-  .input-wrapper input,
-  .input-wrapper select {
-    width:100%;
-    box-sizing:border-box;
     padding:12px;
     margin-top:6px;
     border-radius:8px;
@@ -77,17 +64,14 @@
   .suggestion-box {
     display:none;
     position:absolute;
-    top:100%;
-    left:0;
     background:white;
     border:1px solid #ccc;
     border-radius:8px;
     width:100%;
     max-height:180px;
     overflow-y:auto;
-    z-index:999999; /* HUGE Z-INDEX */
+    z-index:50;   /* original working value */
   }
-
   .suggestion-box div {
     padding:10px;
     cursor:pointer;
@@ -105,9 +89,9 @@
   }
 
   .table-wrapper {
-    width:100%;
-    overflow-x:auto;
-    white-space:nowrap;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
     border-radius:12px;
   }
 
@@ -142,24 +126,21 @@
   <div class="input-box">
 
     <label>POL</label>
-    <div class="input-wrapper">
+    <div style="position:relative;">
       <input id="polInput" type="text" placeholder="Type POL...">
       <div id="polList" class="suggestion-box"></div>
     </div>
 
     <label>POD</label>
-    <div class="input-wrapper">
+    <div style="position:relative;">
       <input id="podInput" type="text" placeholder="Type POD...">
       <div id="podList" class="suggestion-box"></div>
     </div>
 
     <label>Container</label>
-    <div class="input-wrapper">
-      <select id="container">
-        <option value="">Select Container</option>
-      </select>
-      <div id="dummy"></div>
-    </div>
+    <select id="container">
+      <option value="">Select Container</option>
+    </select>
 
   </div>
 
@@ -191,6 +172,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7Tnue
 
 let data = [];
 
+// Load freight data
 async function loadData() {
   const res = await fetch(API_URL);
   data = await res.json();
@@ -209,7 +191,7 @@ async function loadData() {
 
 function setupTypeAhead(inputId, listId, items) {
   const input = document.getElementById(inputId);
-  const box = document.getElementById(listId);
+  const box   = document.getElementById(listId);
 
   input.oninput = () => {
     const t = input.value.toLowerCase();
@@ -233,8 +215,8 @@ function setupTypeAhead(inputId, listId, items) {
 }
 
 function updateResults() {
-  const pol = polInput.value.trim().toLowerCase();
-  const pod = podInput.value.trim().toLowerCase();
+  const pol  = polInput.value.trim().toLowerCase();
+  const pod  = podInput.value.trim().toLowerCase();
   const cont = container.value.trim().toLowerCase();
 
   const rows = data.filter(r =>
@@ -243,7 +225,7 @@ function updateResults() {
     r.container.toLowerCase() === cont
   );
 
-  const box = document.getElementById("resultBox");
+  const box  = document.getElementById("resultBox");
   const body = document.getElementById("resultBody");
 
   if (!rows.length) {
