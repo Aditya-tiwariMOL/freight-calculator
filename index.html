@@ -4,60 +4,61 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Freight Calculator</title>
-
 <style>
-  body {
+  :root{
+    --mol-blue: #1E74F0;
+    --light-bg: #F7FBFF;
+    --table-border: #dfeefc;
+  }
+
+  body{
     margin:0;
-    font-family:Arial, sans-serif;
+    font-family: Arial, sans-serif;
     background:#f4f4f4;
     padding:20px;
   }
 
-  .card {
+  .card{
     background:white;
-    max-width:900px;
-    margin:0 auto;
-    padding:20px;
+    max-width:1100px;
+    margin:0 auto 60px;
+    padding:26px;
     border-radius:14px;
-    box-shadow:0 4px 20px rgba(0,0,0,0.12);
+    box-shadow:0 6px 28px rgba(0,0,0,0.08);
   }
 
-  .logo-text {
+  .logo-text{
     text-align:center;
     font-size:32px;
     font-weight:900;
-    color:#0065B7;
+    color:var(--mol-blue);
+    margin-bottom:6px;
   }
 
-  h2 {
-    text-align:center;
-    margin-bottom:20px;
-  }
+  h2{ text-align:center; margin:0 0 22px 0; font-size:24px; }
 
-  .input-box {
+  .input-box{
     background:#fafafa;
     border-radius:12px;
-    padding:15px;
-    max-width:450px;
+    padding:18px;
+    max-width:520px;
     margin:0 auto;
+    box-sizing:border-box;
   }
 
-  label {
-    display:block;
-    margin-top:15px;
-    font-weight:bold;
-  }
-
+  label{ display:block; margin-top:12px; font-weight:700; font-size:15px; }
   input, select {
     width:100%;
-    padding:12px;
-    margin-top:6px;
+    padding:12px 14px;
+    margin-top:8px;
     border-radius:8px;
     border:1px solid #ccc;
     font-size:15px;
+    box-sizing:border-box;
+    background:#fff;
   }
 
-  .suggestion-box {
+  .suggestion-box{
     display:none;
     position:absolute;
     background:white;
@@ -65,104 +66,89 @@
     border-radius:8px;
     width:100%;
     max-height:180px;
-    overflow-y:auto;
-    z-index:50;
+    overflow:auto;
+    z-index:60;
+    box-sizing:border-box;
   }
-  .suggestion-box div {
-    padding:10px;
-    cursor:pointer;
-  }
-  .suggestion-box div:hover {
-    background:#eaf4ff;
+  .suggestion-box div{ padding:10px; cursor:pointer; }
+  .suggestion-box div:hover{ background:#eaf4ff; }
+
+  /* ----- table container (horizontal scroll) ----- */
+  .result-area{
+    margin-top:26px;
+    display:none; /* appear only when results exist */
   }
 
-  .result-wrapper {
-    display:none;
-    margin-top:25px;
-  }
-
-  /* Laptop table */
-  .web-table {
-    display:block;
+  .table-scroll{
     overflow-x:auto;
+    border-radius:10px;
+    border:1px solid var(--table-border);
+    background: var(--light-bg);
+    padding:0;
   }
-  table {
-    width:100%;
+
+  table{
     border-collapse:collapse;
-    min-width:800px;
+    width:100%;
+    min-width:980px; /* force horizontal scroll on narrow viewports */
+    box-sizing:border-box;
+    background: #fff;
   }
-  th {
-    background:#1E74F0;
-    color:white;
-    padding:10px;
+
+  thead th{
+    position:sticky;
+    top:0;
+    background:var(--mol-blue);
+    color:#fff;
+    padding:12px 14px;
+    font-weight:700;
     text-align:left;
-  }
-  td {
-    padding:10px;
-    border-bottom:1px solid #e2ecff;
-  }
-  td:nth-child(6) { font-weight:bold; }
-
-  /* MOBILE PIVOT TABLE */
-  @media (max-width:768px) {
-    .web-table { display:none; }
-    .mobile-table { display:block; }
-
-    .pivot-container {
-      overflow-x:auto;
-      padding:10px 0;
-    }
-
-    .pivot-table {
-      border-collapse:collapse;
-      width:max-content;
-      min-width:350px;
-      background:white;
-    }
-
-    .pivot-table th, .pivot-table td {
-      border:1px solid #ccc;
-      padding:10px;
-      text-align:center;
-      white-space:nowrap;
-    }
-
-    .pivot-table th {
-      background:#1E74F0;
-      color:white;
-      font-weight:bold;
-    }
-
-    .pivot-total {
-      color:#D60000;
-      font-weight:bold;
-    }
+    border-right:1px solid var(--table-border);
+    white-space:nowrap;
   }
 
-  /* Desktop hides pivot */
-  @media (min-width:769px) {
-    .mobile-table { display:none; }
+  tbody td{
+    padding:12px 14px;
+    border-bottom:1px solid var(--table-border);
+    border-right:1px solid var(--table-border);
+    vertical-align:middle;
+    white-space:nowrap;
+    color:#111;
+  }
+
+  tbody tr:nth-child(even) td{ background: #fbfdff; } /* subtle zebra */
+  tbody td:last-child, thead th:last-child { border-right: none; }
+
+  /* emphasize total column */
+  tbody td.total-col { font-weight:700; color:#000; }
+
+  /* small-screen adjustments */
+  @media (max-width:540px){
+    .card { padding:18px; }
+    .input-box { padding:14px; max-width:100%; }
+    .logo-text { font-size:26px; }
+    h2 { font-size:20px; }
+    table { min-width:860px; } /* still scrollable but slightly narrower */
+    thead th, tbody td { padding:10px 12px; font-size:14px; }
   }
 </style>
 </head>
-
 <body>
-<div class="card">
 
+<div class="card">
   <div class="logo-text">MOL Logistics</div>
   <h2>Freight Calculator</h2>
 
   <div class="input-box">
-
     <label>POL</label>
     <div style="position:relative;">
-      <input id="polInput" type="text" placeholder="Type POL...">
+      <input id="polInput" type="text" placeholder="Type POL..." autocomplete="off">
       <div id="polList" class="suggestion-box"></div>
     </div>
 
     <label>POD</label>
     <div style="position:relative;">
-      <input id="podInput" type="text" placeholder="Type POD...">
+      <input id="podInput" type="text" placeholder="Type POD..." autocomplete="off">
       <div id="podList" class="suggestion-box"></div>
     </div>
 
@@ -170,15 +156,12 @@
     <select id="container">
       <option value="">Select Container</option>
     </select>
-
   </div>
 
-  <!-- OUTPUT SECTION -->
-  <div class="result-wrapper" id="resultBox">
-
-    <!-- LAPTOP VIEW TABLE -->
-    <div class="web-table">
-      <table>
+  <!-- result area (hidden until results present) -->
+  <div id="results" class="result-area">
+    <div class="table-scroll" aria-live="polite">
+      <table role="table" aria-label="Freight results">
         <thead>
           <tr>
             <th>Line</th>
@@ -195,135 +178,142 @@
         <tbody id="resultBody"></tbody>
       </table>
     </div>
-
-    <!-- MOBILE VIEW PIVOT TABLE -->
-    <div class="mobile-table">
-      <div class="pivot-container">
-        <table class="pivot-table" id="pivotTable"></table>
-      </div>
-    </div>
-
   </div>
 
 </div>
 
 <script>
-// 🔗 YOUR GOOGLE APP SCRIPT URL IS INSERTED CORRECTLY BELOW
-const API_URL = "https://script.google.com/macros/s/AKfycbxFo7nizIQklU0_GXBcBA2qOPkmTDpyeXfTi-raysP5s2U5GLWUa1EU0wep_cOi4imj/exec";
+/* ========== CONFIG ========== */
+/* Replace this with your working Apps Script exec URL */
+const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
 
 let data = [];
 
-// Load data
-async function loadData() {
-  const res = await fetch(API_URL);
-  data = await res.json();
+/* Load sheet JSON */
+async function loadData(){
+  try{
+    const r = await fetch(API_URL, {cache: "no-store"});
+    if(!r.ok) throw new Error("Failed loading data: " + r.status);
+    data = await r.json();
 
-  const pols = [...new Set(data.map(d => d.pol))];
-  const pods = [...new Set(data.map(d => d.pod))];
-  const cons = [...new Set(data.map(d => d.container))];
+    // populate unique lists
+    const pols = [...new Set(data.map(d => (d.pol||"").trim()).filter(Boolean))].sort();
+    const pods = [...new Set(data.map(d => (d.pod||"").trim()).filter(Boolean))].sort();
+    const cons = [...new Set(data.map(d => (d.container||"").trim()).filter(Boolean))].sort();
 
-  setupTypeAhead("polInput", "polList", pols);
-  setupTypeAhead("podInput", "podList", pods);
+    setupTypeAhead("polInput","polList",pols);
+    setupTypeAhead("podInput","podList",pods);
 
-  const conSel = document.getElementById("container");
-  cons.forEach(c => conSel.innerHTML += `<option>${c}</option>`);
-  conSel.onchange = updateResults;
+    const conSel = document.getElementById("container");
+    cons.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c; opt.textContent = c;
+      conSel.appendChild(opt);
+    });
+    conSel.onchange = updateResults;
+  }catch(err){
+    console.error(err);
+    alert("Could not load data from backend. Check the Apps Script URL or network.");
+  }
 }
 
-function setupTypeAhead(inputId, listId, items) {
+/* Typeahead helper */
+function setupTypeAhead(inputId, listId, items){
   const input = document.getElementById(inputId);
-  const box   = document.getElementById(listId);
+  const box = document.getElementById(listId);
 
-  input.oninput = () => {
-    const t = input.value.toLowerCase();
-    const f = items.filter(x => x.toLowerCase().includes(t));
-
-    if (!f.length) { box.style.display="none"; return; }
-
-    box.innerHTML = f.map(x => `<div>${x}</div>`).join("");
+  input.addEventListener("input", ()=>{
+    const q = input.value.trim().toLowerCase();
+    if(!q){ box.style.display="none"; return; }
+    const filtered = items.filter(v => v.toLowerCase().includes(q)).slice(0,200);
+    if(!filtered.length){ box.style.display="none"; return; }
+    box.innerHTML = filtered.map(x => `<div>${escapeHtml(x)}</div>`).join("");
     box.style.display = "block";
 
-    box.querySelectorAll("div").forEach(div => {
-      div.onmousedown = () => {
+    box.querySelectorAll("div").forEach(div=>{
+      div.addEventListener("mousedown", e=>{
+        e.preventDefault(); // avoid blur before click
         input.value = div.textContent;
-        box.style.display="none";
+        box.style.display = "none";
         updateResults();
-      };
+      });
     });
-  };
+  });
 
-  input.onblur = () => setTimeout(() => box.style.display="none", 150);
+  input.addEventListener("blur", ()=> setTimeout(()=> box.style.display="none",150));
+  input.addEventListener("change", updateResults);
 }
 
-function updateResults() {
-  const pol  = polInput.value.trim().toLowerCase();
-  const pod  = podInput.value.trim().toLowerCase();
-  const cont = container.value.trim().toLowerCase();
+/* escape small html to avoid broken strings */
+function escapeHtml(s){
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
 
-  const rows = data.filter(r =>
-    r.pol.toLowerCase() === pol &&
-    r.pod.toLowerCase() === pod &&
-    r.container.toLowerCase() === cont
-  );
+/* Main result renderer */
+function updateResults(){
+  const pol = (document.getElementById("polInput").value || "").trim().toLowerCase();
+  const pod = (document.getElementById("podInput").value || "").trim().toLowerCase();
+  const cont= (document.getElementById("container").value || "").trim().toLowerCase();
 
-  const box  = document.getElementById("resultBox");
-  const body = document.getElementById("resultBody");
-  const pivot = document.getElementById("pivotTable");
-
-  if (!rows.length) {
-    box.style.display="none";
-    body.innerHTML="";
-    pivot.innerHTML="";
+  // require all three chosen (keeps results accurate)
+  if(!pol || !pod || !cont){
+    document.getElementById("results").style.display = "none";
+    document.getElementById("resultBody").innerHTML = "";
     return;
   }
 
-  box.style.display="block";
+  // Filter rows where POL+POD+container match exactly (case-insensitive)
+  const matches = data.filter(r =>
+    (r.pol||"").trim().toLowerCase() === pol &&
+    (r.pod||"").trim().toLowerCase() === pod &&
+    (r.container||"").trim().toLowerCase() === cont
+  );
 
-  body.innerHTML = rows.map(r => `
-    <tr>
-      <td>${r.carrier}</td>
-      <td>${r.freight}</td>
-      <td>${r.obs}</td>
-      <td>${r.surcharges}</td>
-      <td>${r.local}</td>
-      <td>${r.total}</td>
-      <td>${r.remark}</td>
-      <td>${r.routing}</td>
-      <td>${r.validity}</td>
-    </tr>
-  `).join("");
+  const body = document.getElementById("resultBody");
+  if(!matches.length){
+    body.innerHTML = `<tr><td colspan="9" style="padding:18px;color:#666;">No results found for selected POL / POD / Container.</td></tr>`;
+    document.getElementById("results").style.display = "block";
+    return;
+  }
 
-  // ---------- MOBILE PIVOT ----------
-  const carriers = rows.map(r => r.carrier);
+  // Build rows (each matching row = one <tr>)
+  body.innerHTML = matches.map(row => {
+    // some sheets use different field names; use fallbacks
+    const carrier = escapeHtml(row.carrier || row["Carrier"] || "");
+    const freight = escapeHtml(row.freight || row["Base Freight"] || row["freight"] || "");
+    const baf     = escapeHtml(row.obs_baf || row["OBS/BAF"] || row.obs || "");
+    const sur     = escapeHtml(row.surcharges || row["Surcharges"] || "");
+    const local   = escapeHtml(row.local || row["Local Charges"] || "");
+    const total   = escapeHtml(row.total || row["Total"] || "");
+    const remark  = escapeHtml(row.remark || row["Remark"] || "");
+    const routing = escapeHtml(row.routing || row["Routing"] || "");
+    const valid   = escapeHtml(row.validity || row["Validity"] || "");
 
-  const fields = [
-    { label:"Freight", key:"freight" },
-    { label:"BAF", key:"obs" },
-    { label:"Sur.", key:"surcharges" },
-    { label:"Local", key:"local" },
-    { label:"Total", key:"total", class:"pivot-total" },
-    { label:"Remark", key:"remark" },
-    { label:"Routing", key:"routing" },
-    { label:"Validity", key:"validity" }
-  ];
+    return `<tr>
+      <td>${carrier}</td>
+      <td>${freight}</td>
+      <td>${baf}</td>
+      <td>${sur}</td>
+      <td>${local}</td>
+      <td class="total-col">${total}</td>
+      <td>${remark}</td>
+      <td>${routing}</td>
+      <td>${valid}</td>
+    </tr>`;
+  }).join("");
 
-  let html = "<tr><th>Field</th>" +
-             carriers.map(c => `<th>${c}</th>`).join("") +
-             "</tr>";
+  // show results area
+  document.getElementById("results").style.display = "block";
 
-  fields.forEach(f => {
-    html += `<tr><td>${f.label}</td>` +
-      rows.map(r =>
-        `<td class="${f.class || ""}">${r[f.key]}</td>`
-      ).join("") +
-      "</tr>";
+  // keep focus visible for keyboard users
+  window.requestAnimationFrame(()=> {
+    const wrapper = document.querySelector(".table-scroll");
+    if(wrapper) wrapper.scrollLeft = 0;
   });
-
-  pivot.innerHTML = html;
 }
 
+/* load data on start */
 loadData();
 </script>
-
 </body>
 </html>
