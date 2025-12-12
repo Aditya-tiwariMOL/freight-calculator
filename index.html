@@ -6,8 +6,6 @@
 <title>Freight Calculator</title>
 
 <style>
-  :root { --mol-blue:#0065B7; }
-
   body {
     margin:0;
     font-family:Arial, sans-serif;
@@ -19,40 +17,22 @@
     background:white;
     max-width:900px;
     margin:0 auto;
-    padding:25px;
+    padding:20px;
     border-radius:14px;
     box-shadow:0 4px 20px rgba(0,0,0,0.12);
-    position:relative;
-    overflow:hidden;
   }
-
-  /* Rotating background map */
-  .map-bg {
-    position:absolute;
-    top:50%; left:50%;
-    width:150%;
-    transform:translate(-50%,-50%);
-    opacity:0.12;
-    animation:rotateMap 45s linear infinite;
-    z-index:0;
-  }
-  @keyframes rotateMap {
-    from { transform:translate(-50%, -50%) rotate(0deg); }
-    to   { transform:translate(-50%, -50%) rotate(360deg); }
-  }
-
-  .content { position:relative; z-index:10; }
 
   .logo-text {
     text-align:center;
-    font-family:"Times New Roman", serif;
     font-size:32px;
     font-weight:900;
     color:#0065B7;
-    margin-bottom:10px;
   }
 
-  h2 { text-align:center; margin-bottom:18px; }
+  h2 {
+    text-align:center;
+    margin-bottom:20px;
+  }
 
   .input-box {
     background:#fafafa;
@@ -88,7 +68,6 @@
     overflow-y:auto;
     z-index:50;
   }
-
   .suggestion-box div {
     padding:10px;
     cursor:pointer;
@@ -122,103 +101,82 @@
     border-bottom:1px solid #e2ecff;
   }
 
-  td:nth-child(6) {
-    font-weight:bold;
-  }
-
+  td:nth-child(6) { font-weight:bold; }
 </style>
 </head>
-<body>
 
+<body>
 <div class="card">
 
-  <!-- Rotating Map -->
-  <img class="map-bg" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_blank_without_borders.svg/2000px-World_map_blank_without_borders.svg.png">
+  <div class="logo-text">MOL Logistics</div>
+  <h2>Freight Calculator</h2>
 
-  <div class="content">
+  <div class="input-box">
 
-    <div class="logo-text">MOL Logistics</div>
-    <h2>Freight Calculator</h2>
-
-    <div class="input-box">
-
-      <label>POL</label>
-      <div style="position:relative;">
-        <input id="polInput" type="text" placeholder="Type POL...">
-        <div id="polList" class="suggestion-box"></div>
-      </div>
-
-      <label>POD</label>
-      <div style="position:relative;">
-        <input id="podInput" type="text" placeholder="Type POD...">
-        <div id="podList" class="suggestion-box"></div>
-      </div>
-
-      <label>Container</label>
-      <select id="container">
-        <option value="">Select Container</option>
-      </select>
-
+    <label>POL</label>
+    <div style="position:relative;">
+      <input id="polInput" type="text" placeholder="Type POL...">
+      <div id="polList" class="suggestion-box"></div>
     </div>
 
-    <div class="result-wrapper" id="resultBox">
-      <table>
-        <thead>
-          <tr>
-            <th>Line</th>
-            <th>Freight</th>
-            <th>BAF</th>
-            <th>Sur.</th>
-            <th>Local</th>
-            <th>Total</th>
-            <th>Remark</th>
-            <th>Route</th>
-            <th>Validity</th>
-          </tr>
-        </thead>
-        <tbody id="resultBody"></tbody>
-      </table>
+    <label>POD</label>
+    <div style="position:relative;">
+      <input id="podInput" type="text" placeholder="Type POD...">
+      <div id="podList" class="suggestion-box"></div>
     </div>
+
+    <label>Container</label>
+    <select id="container">
+      <option value="">Select Container</option>
+    </select>
 
   </div>
+
+  <div class="result-wrapper" id="resultBox">
+    <table>
+      <thead>
+        <tr>
+          <th>Line</th>
+          <th>Freight</th>
+          <th>BAF</th>
+          <th>Sur.</th>
+          <th>Local</th>
+          <th>Total</th>
+          <th>Remark</th>
+          <th>Route</th>
+          <th>Validity</th>
+        </tr>
+      </thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+  </div>
+
 </div>
 
 <script>
+// 🔗 YOUR NEW BACKEND URL:
 const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
+
 let data = [];
 
-// Fetch data from Apps Script
+// Load freight data
 async function loadData() {
-  try {
-    const res = await fetch(API_URL);
-    const raw = await res.json();
+  const res = await fetch(API_URL);
+  data = await res.json();
 
-    // Convert all keys to lowercase
-    data = raw.map(row => {
-      const obj = {};
-      for (const k in row) {
-        obj[k.toLowerCase()] = row[k];
-      }
-      return obj;
-    });
+  const pols = [...new Set(data.map(d => d.pol))];
+  const pods = [...new Set(data.map(d => d.pod))];
+  const cons = [...new Set(data.map(d => d.container))];
 
-    const pols = [...new Set(data.map(d => d.pol))];
-    const pods = [...new Set(data.map(d => d.pod))];
-    const cons = [...new Set(data.map(d => d.container))];
+  setupTypeAhead("polInput", "polList", pols);
+  setupTypeAhead("podInput", "podList", pods);
 
-    setupTypeAhead("polInput", "polList", pols);
-    setupTypeAhead("podInput", "podList", pods);
-
-    const conSel = document.getElementById("container");
-    cons.forEach(c => conSel.innerHTML += `<option>${c}</option>`);
-
-    conSel.onchange = updateResults;
-
-  } catch (e) {
-    alert("Could not load data. Please try again.");
-  }
+  const conSel = document.getElementById("container");
+  cons.forEach(c => conSel.innerHTML += `<option>${c}</option>`);
+  conSel.onchange = updateResults;
 }
 
+// Typeahead dropdown
 function setupTypeAhead(inputId, listId, items) {
   const input = document.getElementById(inputId);
   const box   = document.getElementById(listId);
@@ -244,15 +202,16 @@ function setupTypeAhead(inputId, listId, items) {
   input.onblur = () => setTimeout(() => box.style.display="none", 150);
 }
 
+// Show result rows
 function updateResults() {
   const pol  = polInput.value.trim().toLowerCase();
   const pod  = podInput.value.trim().toLowerCase();
   const cont = container.value.trim().toLowerCase();
 
   const rows = data.filter(r =>
-    r.pol === pol &&
-    r.pod === pod &&
-    r.container === cont
+    r.pol.toLowerCase() === pol &&
+    r.pod.toLowerCase() === pod &&
+    r.container.toLowerCase() === cont
   );
 
   const box  = document.getElementById("resultBox");
