@@ -20,34 +20,30 @@
     padding:20px;
     border-radius:14px;
     box-shadow:0 4px 20px rgba(0,0,0,0.12);
+    overflow: visible; /* FIX: dropdown hidden on laptop */
   }
 
-  /* Clean & Professional Heading */
+  /* Clean title */
   .logo-text {
     text-align:center;
-    font-size:22px;      /* smaller */
-    font-weight:800;     /* less bulky */
+    font-size:22px;
+    font-weight:800;
     color:#0065B7;
-    white-space:nowrap;  /* ALWAYS one line */
-    margin-bottom:6px;   /* tighter spacing */
+    white-space:nowrap; /* always one line */
+    margin-bottom:6px;
   }
 
   h2 {
     text-align:center;
-    font-size:18px;      /* smaller */
+    font-size:18px;
     font-weight:700;
     margin-top:0;
     margin-bottom:18px;
   }
 
-  /* Mobile */
   @media (max-width:480px) {
-    .logo-text {
-      font-size:18px;    /* fit small screens */
-    }
-    h2 {
-      font-size:16px;
-    }
+    .logo-text { font-size:18px; }
+    h2 { font-size:16px; }
   }
 
   .input-box {
@@ -64,11 +60,11 @@
     font-weight:bold;
   }
 
-  /* FIX: Inputs overflowing outside grey box */
+  /* FIX: input width correct inside grey box */
   .input-box input,
   .input-box select {
     width:100%;
-    box-sizing:border-box; /* prevent overflow */
+    box-sizing:border-box;
     padding:12px;
     margin-top:6px;
     border-radius:8px;
@@ -76,6 +72,7 @@
     font-size:15px;
   }
 
+  /* FIX: dropdown not visible in laptop */
   .suggestion-box {
     display:none;
     position:absolute;
@@ -85,7 +82,7 @@
     width:100%;
     max-height:180px;
     overflow-y:auto;
-    z-index:50;
+    z-index:9999; /* force above card */
   }
   .suggestion-box div {
     padding:10px;
@@ -105,9 +102,8 @@
 
   .table-wrapper {
     width:100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
+    overflow-x:auto;
+    white-space:nowrap;
     border-radius:12px;
   }
 
