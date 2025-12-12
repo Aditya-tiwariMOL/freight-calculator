@@ -84,9 +84,19 @@
     border-radius:12px;
   }
 
+  /* 🔥 NEW: Horizontal scroll for table */
+  .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    border-radius:12px;
+  }
+
   table {
     width:100%;
     border-collapse:collapse;
+    min-width:900px; /* ensures scrolling */
   }
 
   th {
@@ -133,28 +143,30 @@
   </div>
 
   <div class="result-wrapper" id="resultBox">
-    <table>
-      <thead>
-        <tr>
-          <th>Line</th>
-          <th>Freight</th>
-          <th>BAF</th>
-          <th>Sur.</th>
-          <th>Local</th>
-          <th>Total</th>
-          <th>Remark</th>
-          <th>Route</th>
-          <th>Validity</th>
-        </tr>
-      </thead>
-      <tbody id="resultBody"></tbody>
-    </table>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Line</th>
+            <th>Freight</th>
+            <th>BAF</th>
+            <th>Sur.</th>
+            <th>Local</th>
+            <th>Total</th>
+            <th>Remark</th>
+            <th>Route</th>
+            <th>Validity</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+    </div>
   </div>
 
 </div>
 
 <script>
-// 🔗 YOUR NEW BACKEND URL:
+// 🔗 YOUR LIVE DEPLOYMENT URL:
 const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
 
 let data = [];
@@ -208,11 +220,11 @@ function updateResults() {
   const pod  = podInput.value.trim().toLowerCase();
   const cont = container.value.trim().toLowerCase();
 
- const rows = data.filter(r =>
-  r.pol.toLowerCase().includes(pol) &&
-  r.pod.toLowerCase().includes(pod) &&
-  r.container.toLowerCase() === cont
-);
+  const rows = data.filter(r =>
+    r.pol.toLowerCase().includes(pol) &&
+    r.pod.toLowerCase().includes(pod) &&
+    r.container.toLowerCase() === cont
+  );
 
   const box  = document.getElementById("resultBox");
   const body = document.getElementById("resultBody");
