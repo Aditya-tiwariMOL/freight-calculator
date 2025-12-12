@@ -61,66 +61,70 @@
     overflow-y:auto;
     z-index:50;
   }
+
   .suggestion-box div { padding:10px; cursor:pointer; }
   .suggestion-box div:hover { background:#eaf4ff; }
 
-  /* DESKTOP full table */
-  .result-wrapper-table { display:none; overflow-x:auto; }
+  /* Desktop table */
+  .result-wrapper-table { 
+    display:none; 
+    overflow-x:auto; 
+    margin-top:25px;
+  }
 
   table {
     width:100%;
     border-collapse:collapse;
-    margin-top:20px;
   }
+
   th {
     background:#1E74F0;
     color:white;
     padding:10px;
     text-align:left;
   }
+
   td {
     padding:10px;
     border-bottom:1px solid #e2ecff;
   }
 
-  /* MOBILE compact matrix */
-  .mobile-matrix {
+  /* MOBILE – Pivot Table */
+  .mobile-wrapper {
     display:none;
     background:#f7fbff;
     padding:15px;
-    border-radius:12px;
     margin-top:20px;
+    border-radius:12px;
   }
 
   .mobile-row {
-    border-bottom:1px solid #d9e6ff;
-    padding:10px 0;
-  }
-
-  .mobile-row:last-child { border-bottom:none; }
-
-  .matrix-title {
-    font-weight:bold;
-    margin-bottom:6px;
-    color:#004c95;
-  }
-
-  .matrix-values {
     display:flex;
-    justify-content:space-between;
+    border-bottom:1px solid #dce8ff;
+    padding:10px 5px;
     font-size:15px;
   }
 
-  /* Show MOBILE version only on small screens */
-  @media (max-width: 600px) {
-    .result-wrapper-table { display:none !important; }
-    .mobile-matrix { display:block !important; }
+  .mobile-left {
+    width:35%;
+    font-weight:bold;
   }
 
-  /* Show DESKTOP version on big screens */
-  @media (min-width: 601px) {
+  .mobile-right {
+    width:65%;
+    display:flex;
+    gap:10px;
+  }
+
+  /* Show only on small screens */
+  @media (max-width:600px) {
+    .result-wrapper-table { display:none !important; }
+    .mobile-wrapper { display:block !important; }
+  }
+
+  @media (min-width:601px) {
     .result-wrapper-table { display:block !important; }
-    .mobile-matrix { display:none !important; }
+    .mobile-wrapper { display:none !important; }
   }
 </style>
 </head>
@@ -132,6 +136,7 @@
   <h2>Freight Calculator</h2>
 
   <div class="input-box">
+
     <label>POL</label>
     <div style="position:relative;">
       <input id="polInput" type="text" placeholder="Type POL...">
@@ -139,7 +144,7 @@
     </div>
 
     <label>POD</label>
-    <div style="position:relative;">
+    <div style="position:relative%;">
       <input id="podInput" type="text" placeholder="Type POD...">
       <div id="podList" class="suggestion-box"></div>
     </div>
@@ -148,10 +153,11 @@
     <select id="container">
       <option value="">Select Container</option>
     </select>
+
   </div>
 
-  <!-- DESKTOP TABLE -->
-  <div class="result-wrapper-table" id="resultTableBox">
+  <!-- DESKTOP FULL TABLE -->
+  <div class="result-wrapper-table" id="desktopTableBox">
     <table>
       <thead>
         <tr>
@@ -166,20 +172,21 @@
           <th>Validity</th>
         </tr>
       </thead>
-      <tbody id="resultBody"></tbody>
+      <tbody id="desktopBody"></tbody>
     </table>
   </div>
 
-  <!-- MOBILE MATRIX -->
-  <div class="mobile-matrix" id="mobileMatrix"></div>
+  <!-- MOBILE PIVOT TABLE -->
+  <div class="mobile-wrapper" id="mobileBox"></div>
 
 </div>
 
+
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
-
 let data = [];
 
+// Load freight JSON from App Script
 async function loadData() {
   const res = await fetch(API_URL);
   data = await res.json();
@@ -191,10 +198,12 @@ async function loadData() {
   setupTypeAhead("polInput", "polList", pols);
   setupTypeAhead("podInput", "podList", pods);
 
-  const sel = document.getElementById("container");
-  cons.forEach(c => sel.innerHTML += `<option>${c}</option>`);
-  sel.onchange = updateResults;
+  const conSel = document.getElementById("container");
+  cons.forEach(c => conSel.innerHTML += `<option>${c}</option>`);
+
+  conSel.onchange = updateResults;
 }
+
 
 function setupTypeAhead(inputId, listId, items) {
   const input = document.getElementById(inputId);
@@ -203,6 +212,7 @@ function setupTypeAhead(inputId, listId, items) {
   input.oninput = () => {
     const t = input.value.toLowerCase();
     const f = items.filter(x => x.toLowerCase().includes(t));
+
     if (!f.length) { box.style.display="none"; return; }
 
     box.innerHTML = f.map(x => `<div>${x}</div>`).join("");
@@ -220,6 +230,8 @@ function setupTypeAhead(inputId, listId, items) {
   input.onblur = () => setTimeout(() => box.style.display="none", 150);
 }
 
+
+
 function updateResults() {
   const pol  = polInput.value.trim().toLowerCase();
   const pod  = podInput.value.trim().toLowerCase();
@@ -231,20 +243,21 @@ function updateResults() {
     r.container.toLowerCase() === cont
   );
 
-  // Desktop table
-  const body = document.getElementById("resultBody");
-  const tableBox = document.getElementById("resultTableBox");
+  const desktopBox = document.getElementById("desktopTableBox");
+  const desktopBody = document.getElementById("desktopBody");
+  const mobileBox = document.getElementById("mobileBox");
 
   if (!rows.length) {
-    body.innerHTML = "";
-    tableBox.style.display = "none";
-    mobileMatrix.innerHTML = "";
+    desktopBox.style.display = "none";
+    mobileBox.innerHTML = "";
     return;
   }
 
-  tableBox.style.display = "block";
+  // → Show desktop only when results come
+  desktopBox.style.display = "block";
 
-  body.innerHTML = rows.map(r => `
+  // Fill desktop table
+  desktopBody.innerHTML = rows.map(r => `
     <tr>
       <td>${r.carrier}</td>
       <td>${r.freight}</td>
@@ -255,56 +268,33 @@ function updateResults() {
       <td>${r.remark}</td>
       <td>${r.routing}</td>
       <td>${r.validity}</td>
-    </tr>`).join("");
+    </tr>
+  `).join("");
 
-  // MOBILE MATRIX
-  const carriers = rows.map(r => r.carrier).join(" | ");
-  const mobile = document.getElementById("mobileMatrix");
+  // MOBILE PIVOT FORMAT  
+  const carriers = rows.map(r => r.carrier);
+  const freight  = rows.map(r => r.freight);
+  const obs      = rows.map(r => r.obs);
+  const sur      = rows.map(r => r.surcharges);
+  const local    = rows.map(r => r.local);
+  const total    = rows.map(r => r.total);
+  const routing  = rows.map(r => r.routing);
+  const valid    = rows.map(r => r.validity);
 
-  mobile.innerHTML = `
-    <div class="mobile-row">
-      <div class="matrix-title">Carrier</div>
-      <div class="matrix-values">${rows.map(r => r.carrier).join(" | ")}</div>
-    </div>
-
-    <div class="mobile-row">
-      <div class="matrix-title">Freight</div>
-      <div class="matrix-values">${rows.map(r => r.freight).join(" | ")}</div>
-    </div>
-
-    <div class="mobile-row">
-      <div class="matrix-title">BAF</div>
-      <div class="matrix-values">${rows.map(r => r.obs).join(" | ")}</div>
-    </div>
-
-    <div class="mobile-row">
-      <div class="matrix-title">Surcharge</div>
-      <div class="matrix-values">${rows.map(r => r.surcharges).join(" | ")}</div>
-    </div>
-
-    <div class="mobile-row">
-      <div class="matrix-title">Local</div>
-      <div class="matrix-values">${rows.map(r => r.local).join(" | ")}</div>
-    </div>
-
-    <div class="mobile-row">
-      <div class="matrix-title">Total</div>
-      <div class="matrix-values">${rows.map(r => r.total).join(" | ")}</div>
-    </div>
-
-    <div class="mobile-row">
-      <div class="matrix-title">Routing</div>
-      <div class="matrix-values">${rows.map(r => r.routing).join(" | ")}</div>
-    </div>
-
-    <div class="mobile-row">
-      <div class="matrix-title">Validity</div>
-      <div class="matrix-values">${rows.map(r => r.validity).join(" | ")}</div>
-    </div>
+  mobileBox.innerHTML = `
+    <div class="mobile-row"><div class="mobile-left">Carrier</div><div class="mobile-right">${carriers.join(" | ")}</div></div>
+    <div class="mobile-row"><div class="mobile-left">Freight</div><div class="mobile-right">${freight.join(" | ")}</div></div>
+    <div class="mobile-row"><div class="mobile-left">BAF</div><div class="mobile-right">${obs.join(" | ")}</div></div>
+    <div class="mobile-row"><div class="mobile-left">Sur.</div><div class="mobile-right">${sur.join(" | ")}</div></div>
+    <div class="mobile-row"><div class="mobile-left">Local</div><div class="mobile-right">${local.join(" | ")}</div></div>
+    <div class="mobile-row"><div class="mobile-left">Total</div><div class="mobile-right">${total.join(" | ")}</div></div>
+    <div class="mobile-row"><div class="mobile-left">Routing</div><div class="mobile-right">${routing.join(" | ")}</div></div>
+    <div class="mobile-row"><div class="mobile-left">Validity</div><div class="mobile-right">${valid.join(" | ")}</div></div>
   `;
 }
 
 loadData();
 </script>
+
 </body>
 </html>
