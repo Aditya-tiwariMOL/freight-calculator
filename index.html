@@ -20,38 +20,37 @@
     padding:20px;
     border-radius:14px;
     box-shadow:0 4px 20px rgba(0,0,0,0.12);
-    /* keep overflow default so dropdowns are fine */
   }
 
-  /* ONLY SMALL, CLEAN HEADING FIX APPLIED */
+  /* LOGO TEXT — UPDATED COLOR */
   .logo-text {
     text-align:center;
-    font-size:18px;       /* smaller & professional */
+    font-size:18px;
     font-weight:900;
-    color:#0065B7;
-    white-space:nowrap;   /* stays on one line */
+    color:#164A9D;  /* NEW COLOR */
+    white-space:nowrap;
   }
 
+  /* FREIGHT CALCULATOR TITLE — BLACK */
   h2 {
     text-align:center;
-    font-size:20px;       /* clean size */
+    font-size:20px;
     margin-bottom:20px;
     margin-top:10px;
-    color:#164A9D;
+    color: black; /* BACK TO BLACK */
   }
 
-  /* Input box container */
   .input-box {
     background:#fafafa;
     border-radius:12px;
     padding:15px;
     max-width:450px;
-    width:100%;               /* ensure it never overflows on small screens */
-    box-sizing:border-box;    /* include padding in width calculation */
+    width:100%;
+    box-sizing:border-box;
     margin:0 auto;
     display:flex;
     flex-direction:column;
-    align-items:stretch;      /* make children stretch full width */
+    align-items:stretch;
   }
 
   label {
@@ -60,20 +59,18 @@
     font-weight:bold;
   }
 
-  /* reset any default margins around inputs and ensure exact alignment */
   input, select {
     display:block;
     width:100%;
     padding:12px;
-    margin:6px 0 0 0;         /* top margin only, no left/right */
+    margin:6px 0 0 0;
     border-radius:8px;
     border:1px solid #ccc;
     font-size:15px;
-    box-sizing:border-box;    /* include padding in width */
-    background: white;
+    box-sizing:border-box;
+    background:white;
   }
 
-  /* suggestion dropdown (unchanged logic) */
   .suggestion-box {
     display:none;
     position:absolute;
@@ -83,7 +80,7 @@
     width:100%;
     max-height:180px;
     overflow-y:auto;
-    z-index:50;   /* keep original working value */
+    z-index:50;
   }
   .suggestion-box div {
     padding:10px;
@@ -102,7 +99,7 @@
   }
 
   .table-wrapper {
-    width: 100%;
+    width:100%;
     overflow-x: auto;
     white-space: nowrap;
     border-radius:12px;
@@ -128,7 +125,6 @@
 
   td:nth-child(6) { font-weight:bold; }
 
-  /* Slightly reduce outer padding on tiny screens to avoid visual offset */
   @media (max-width:420px) {
     body { padding:12px; }
     .card { padding:12px; }
@@ -140,14 +136,14 @@
 <body>
 <div class="card">
 
- <div style="text-align:center; margin-bottom:10px;">
-  <img src="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/MOL%20Logo%2001.png"
-       alt="MOL Logo"
-       style="height:35px; width:auto; margin-bottom:5px;">
-   <div class="logo-text">MOL Logistics (INDIA) PVT. LTD.</div>
-</div>
+  <div style="text-align:center; margin-bottom:10px;">
+    <img src="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/MOL%20Logo%2001.png"
+         alt="MOL Logo"
+         style="height:35px; width:auto; margin-bottom:5px;">
+    <div class="logo-text">MOL Logistics (INDIA) PVT. LTD.</div>
+  </div>
 
-<h2>Freight Calculator</h2>
+  <h2>Freight Calculator</h2>
 
   <div class="input-box">
 
@@ -198,7 +194,6 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7Tnue
 
 let data = [];
 
-// Load freight data
 async function loadData() {
   const res = await fetch(API_URL);
   data = await res.json();
