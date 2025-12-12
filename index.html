@@ -22,30 +22,32 @@
     box-shadow:0 4px 20px rgba(0,0,0,0.12);
   }
 
- .logo-text {
-  text-align:center;
-  font-size:26px;   /* smaller for laptop */
-  font-weight:900;
-  color:#0065B7;
-  line-height:1.2;
-  white-space:nowrap; /* FORCE one-line on mobile */
-}
-
-h2 {
-  text-align:center;
-  font-size:22px;  /* decreased */
-  margin-bottom:20px;
-}
-
-/* 📱 Mobile adjustments */
-@media (max-width:480px) {
+  /* Clean & Professional Heading */
   .logo-text {
-    font-size:20px; /* smaller to fit one line */
+    text-align:center;
+    font-size:22px;      /* smaller */
+    font-weight:800;     /* less bulky */
+    color:#0065B7;
+    white-space:nowrap;  /* ALWAYS one line */
+    margin-bottom:6px;   /* tighter spacing */
   }
-  
+
   h2 {
-    font-size:18px;
+    text-align:center;
+    font-size:18px;      /* smaller */
+    font-weight:700;
+    margin-top:0;
+    margin-bottom:18px;
   }
+
+  /* Mobile */
+  @media (max-width:480px) {
+    .logo-text {
+      font-size:18px;    /* fit small screens */
+    }
+    h2 {
+      font-size:16px;
+    }
   }
 
   .input-box {
@@ -62,8 +64,11 @@ h2 {
     font-weight:bold;
   }
 
-  input, select {
+  /* FIX: Inputs overflowing outside grey box */
+  .input-box input,
+  .input-box select {
     width:100%;
+    box-sizing:border-box; /* prevent overflow */
     padding:12px;
     margin-top:6px;
     border-radius:8px;
@@ -99,7 +104,7 @@ h2 {
   }
 
   .table-wrapper {
-    width: 100%;
+    width:100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     white-space: nowrap;
