@@ -4,61 +4,60 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Freight Calculator</title>
-<style>
-  :root{
-    --mol-blue: #1E74F0;
-    --light-bg: #F7FBFF;
-    --table-border: #dfeefc;
-  }
 
-  body{
+<style>
+  body {
     margin:0;
-    font-family: Arial, sans-serif;
+    font-family:Arial, sans-serif;
     background:#f4f4f4;
     padding:20px;
   }
 
-  .card{
+  .card {
     background:white;
-    max-width:1100px;
-    margin:0 auto 60px;
-    padding:26px;
+    max-width:900px;
+    margin:0 auto;
+    padding:20px;
     border-radius:14px;
-    box-shadow:0 6px 28px rgba(0,0,0,0.08);
+    box-shadow:0 4px 20px rgba(0,0,0,0.12);
   }
 
-  .logo-text{
+  .logo-text {
     text-align:center;
     font-size:32px;
     font-weight:900;
-    color:var(--mol-blue);
-    margin-bottom:6px;
+    color:#0065B7;
   }
 
-  h2{ text-align:center; margin:0 0 22px 0; font-size:24px; }
+  h2 {
+    text-align:center;
+    margin-bottom:20px;
+  }
 
-  .input-box{
+  .input-box {
     background:#fafafa;
     border-radius:12px;
-    padding:18px;
-    max-width:520px;
+    padding:15px;
+    max-width:450px;
     margin:0 auto;
-    box-sizing:border-box;
   }
 
-  label{ display:block; margin-top:12px; font-weight:700; font-size:15px; }
+  label {
+    display:block;
+    margin-top:15px;
+    font-weight:bold;
+  }
+
   input, select {
     width:100%;
-    padding:12px 14px;
-    margin-top:8px;
+    padding:12px;
+    margin-top:6px;
     border-radius:8px;
     border:1px solid #ccc;
     font-size:15px;
-    box-sizing:border-box;
-    background:#fff;
   }
 
-  .suggestion-box{
+  .suggestion-box {
     display:none;
     position:absolute;
     background:white;
@@ -66,89 +65,73 @@
     border-radius:8px;
     width:100%;
     max-height:180px;
-    overflow:auto;
-    z-index:60;
-    box-sizing:border-box;
+    overflow-y:auto;
+    z-index:50;
   }
-  .suggestion-box div{ padding:10px; cursor:pointer; }
-  .suggestion-box div:hover{ background:#eaf4ff; }
-
-  /* ----- table container (horizontal scroll) ----- */
-  .result-area{
-    margin-top:26px;
-    display:none; /* appear only when results exist */
+  .suggestion-box div {
+    padding:10px;
+    cursor:pointer;
+  }
+  .suggestion-box div:hover {
+    background:#eaf4ff;
   }
 
-  .table-scroll{
-    overflow-x:auto;
-    border-radius:10px;
-    border:1px solid var(--table-border);
-    background: var(--light-bg);
-    padding:0;
+  .result-wrapper {
+    display:none;
+    margin-top:25px;
+    background:#f7fbff;
+    padding:15px;
+    border-radius:12px;
   }
 
-  table{
-    border-collapse:collapse;
+  /* 🔥 NEW: Horizontal scroll for table */
+  .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    border-radius:12px;
+  }
+
+  table {
     width:100%;
-    min-width:980px; /* force horizontal scroll on narrow viewports */
-    box-sizing:border-box;
-    background: #fff;
+    border-collapse:collapse;
+    min-width:900px; /* ensures scrolling */
   }
 
-  thead th{
-    position:sticky;
-    top:0;
-    background:var(--mol-blue);
-    color:#fff;
-    padding:12px 14px;
-    font-weight:700;
+  th {
+    background:#1E74F0;
+    color:white;
+    padding:10px;
     text-align:left;
-    border-right:1px solid var(--table-border);
-    white-space:nowrap;
   }
 
-  tbody td{
-    padding:12px 14px;
-    border-bottom:1px solid var(--table-border);
-    border-right:1px solid var(--table-border);
-    vertical-align:middle;
-    white-space:nowrap;
-    color:#111;
+  td {
+    padding:10px;
+    border-bottom:1px solid #e2ecff;
   }
 
-  tbody tr:nth-child(even) td{ background: #fbfdff; } /* subtle zebra */
-  tbody td:last-child, thead th:last-child { border-right: none; }
-
-  /* emphasize total column */
-  tbody td.total-col { font-weight:700; color:#000; }
-
-  /* small-screen adjustments */
-  @media (max-width:540px){
-    .card { padding:18px; }
-    .input-box { padding:14px; max-width:100%; }
-    .logo-text { font-size:26px; }
-    h2 { font-size:20px; }
-    table { min-width:860px; } /* still scrollable but slightly narrower */
-    thead th, tbody td { padding:10px 12px; font-size:14px; }
-  }
+  td:nth-child(6) { font-weight:bold; }
 </style>
 </head>
-<body>
 
+<body>
 <div class="card">
+
   <div class="logo-text">MOL Logistics</div>
   <h2>Freight Calculator</h2>
 
   <div class="input-box">
+
     <label>POL</label>
     <div style="position:relative;">
-      <input id="polInput" type="text" placeholder="Type POL..." autocomplete="off">
+      <input id="polInput" type="text" placeholder="Type POL...">
       <div id="polList" class="suggestion-box"></div>
     </div>
 
     <label>POD</label>
     <div style="position:relative;">
-      <input id="podInput" type="text" placeholder="Type POD..." autocomplete="off">
+      <input id="podInput" type="text" placeholder="Type POD...">
       <div id="podList" class="suggestion-box"></div>
     </div>
 
@@ -156,12 +139,12 @@
     <select id="container">
       <option value="">Select Container</option>
     </select>
+
   </div>
 
-  <!-- result area (hidden until results present) -->
-  <div id="results" class="result-area">
-    <div class="table-scroll" aria-live="polite">
-      <table role="table" aria-label="Freight results">
+  <div class="result-wrapper" id="resultBox">
+    <div class="table-wrapper">
+      <table>
         <thead>
           <tr>
             <th>Line</th>
@@ -183,137 +166,94 @@
 </div>
 
 <script>
-/* ========== CONFIG ========== */
-/* Replace this with your working Apps Script exec URL */
+// 🔗 YOUR LIVE DEPLOYMENT URL:
 const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
 
 let data = [];
 
-/* Load sheet JSON */
-async function loadData(){
-  try{
-    const r = await fetch(API_URL, {cache: "no-store"});
-    if(!r.ok) throw new Error("Failed loading data: " + r.status);
-    data = await r.json();
+// Load freight data
+async function loadData() {
+  const res = await fetch(API_URL);
+  data = await res.json();
 
-    // populate unique lists
-    const pols = [...new Set(data.map(d => (d.pol||"").trim()).filter(Boolean))].sort();
-    const pods = [...new Set(data.map(d => (d.pod||"").trim()).filter(Boolean))].sort();
-    const cons = [...new Set(data.map(d => (d.container||"").trim()).filter(Boolean))].sort();
+  const pols = [...new Set(data.map(d => d.pol))];
+  const pods = [...new Set(data.map(d => d.pod))];
+  const cons = [...new Set(data.map(d => d.container))];
 
-    setupTypeAhead("polInput","polList",pols);
-    setupTypeAhead("podInput","podList",pods);
+  setupTypeAhead("polInput", "polList", pols);
+  setupTypeAhead("podInput", "podList", pods);
 
-    const conSel = document.getElementById("container");
-    cons.forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c; opt.textContent = c;
-      conSel.appendChild(opt);
-    });
-    conSel.onchange = updateResults;
-  }catch(err){
-    console.error(err);
-    alert("Could not load data from backend. Check the Apps Script URL or network.");
-  }
+  const conSel = document.getElementById("container");
+  cons.forEach(c => conSel.innerHTML += `<option>${c}</option>`);
+  conSel.onchange = updateResults;
 }
 
-/* Typeahead helper */
-function setupTypeAhead(inputId, listId, items){
+// Typeahead dropdown
+function setupTypeAhead(inputId, listId, items) {
   const input = document.getElementById(inputId);
-  const box = document.getElementById(listId);
+  const box   = document.getElementById(listId);
 
-  input.addEventListener("input", ()=>{
-    const q = input.value.trim().toLowerCase();
-    if(!q){ box.style.display="none"; return; }
-    const filtered = items.filter(v => v.toLowerCase().includes(q)).slice(0,200);
-    if(!filtered.length){ box.style.display="none"; return; }
-    box.innerHTML = filtered.map(x => `<div>${escapeHtml(x)}</div>`).join("");
+  input.oninput = () => {
+    const t = input.value.toLowerCase();
+    const f = items.filter(x => x.toLowerCase().includes(t));
+
+    if (!f.length) { box.style.display="none"; return; }
+
+    box.innerHTML = f.map(x => `<div>${x}</div>`).join("");
     box.style.display = "block";
 
-    box.querySelectorAll("div").forEach(div=>{
-      div.addEventListener("mousedown", e=>{
-        e.preventDefault(); // avoid blur before click
+    box.querySelectorAll("div").forEach(div => {
+      div.onmousedown = () => {
         input.value = div.textContent;
-        box.style.display = "none";
+        box.style.display="none";
         updateResults();
-      });
+      };
     });
-  });
+  };
 
-  input.addEventListener("blur", ()=> setTimeout(()=> box.style.display="none",150));
-  input.addEventListener("change", updateResults);
+  input.onblur = () => setTimeout(() => box.style.display="none", 150);
 }
 
-/* escape small html to avoid broken strings */
-function escapeHtml(s){
-  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-}
+// Show result rows
+function updateResults() {
+  const pol  = polInput.value.trim().toLowerCase();
+  const pod  = podInput.value.trim().toLowerCase();
+  const cont = container.value.trim().toLowerCase();
 
-/* Main result renderer */
-function updateResults(){
-  const pol = (document.getElementById("polInput").value || "").trim().toLowerCase();
-  const pod = (document.getElementById("podInput").value || "").trim().toLowerCase();
-  const cont= (document.getElementById("container").value || "").trim().toLowerCase();
-
-  // require all three chosen (keeps results accurate)
-  if(!pol || !pod || !cont){
-    document.getElementById("results").style.display = "none";
-    document.getElementById("resultBody").innerHTML = "";
-    return;
-  }
-
-  // Filter rows where POL+POD+container match exactly (case-insensitive)
-  const matches = data.filter(r =>
-    (r.pol||"").trim().toLowerCase() === pol &&
-    (r.pod||"").trim().toLowerCase() === pod &&
-    (r.container||"").trim().toLowerCase() === cont
+  const rows = data.filter(r =>
+    r.pol.toLowerCase().includes(pol) &&
+    r.pod.toLowerCase().includes(pod) &&
+    r.container.toLowerCase() === cont
   );
 
+  const box  = document.getElementById("resultBox");
   const body = document.getElementById("resultBody");
-  if(!matches.length){
-    body.innerHTML = `<tr><td colspan="9" style="padding:18px;color:#666;">No results found for selected POL / POD / Container.</td></tr>`;
-    document.getElementById("results").style.display = "block";
+
+  if (!rows.length) {
+    box.style.display="none";
+    body.innerHTML="";
     return;
   }
 
-  // Build rows (each matching row = one <tr>)
-  body.innerHTML = matches.map(row => {
-    // some sheets use different field names; use fallbacks
-    const carrier = escapeHtml(row.carrier || row["Carrier"] || "");
-    const freight = escapeHtml(row.freight || row["Base Freight"] || row["freight"] || "");
-    const baf     = escapeHtml(row.obs_baf || row["OBS/BAF"] || row.obs || "");
-    const sur     = escapeHtml(row.surcharges || row["Surcharges"] || "");
-    const local   = escapeHtml(row.local || row["Local Charges"] || "");
-    const total   = escapeHtml(row.total || row["Total"] || "");
-    const remark  = escapeHtml(row.remark || row["Remark"] || "");
-    const routing = escapeHtml(row.routing || row["Routing"] || "");
-    const valid   = escapeHtml(row.validity || row["Validity"] || "");
+  body.innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.carrier}</td>
+      <td>${r.freight}</td>
+      <td>${r.obs}</td>
+      <td>${r.surcharges}</td>
+      <td>${r.local}</td>
+      <td>${r.total}</td>
+      <td>${r.remark}</td>
+      <td>${r.routing}</td>
+      <td>${r.validity}</td>
+    </tr>
+  `).join("");
 
-    return `<tr>
-      <td>${carrier}</td>
-      <td>${freight}</td>
-      <td>${baf}</td>
-      <td>${sur}</td>
-      <td>${local}</td>
-      <td class="total-col">${total}</td>
-      <td>${remark}</td>
-      <td>${routing}</td>
-      <td>${valid}</td>
-    </tr>`;
-  }).join("");
-
-  // show results area
-  document.getElementById("results").style.display = "block";
-
-  // keep focus visible for keyboard users
-  window.requestAnimationFrame(()=> {
-    const wrapper = document.querySelector(".table-scroll");
-    if(wrapper) wrapper.scrollLeft = 0;
-  });
+  box.style.display="block";
 }
 
-/* load data on start */
 loadData();
 </script>
+
 </body>
 </html>
