@@ -20,24 +20,21 @@
     padding:20px;
     border-radius:14px;
     box-shadow:0 4px 20px rgba(0,0,0,0.12);
-    overflow: visible; /* FIX: dropdown hidden on laptop */
+    overflow:visible;
   }
 
-  /* Clean title */
   .logo-text {
     text-align:center;
     font-size:22px;
     font-weight:800;
     color:#0065B7;
-    white-space:nowrap; /* always one line */
+    white-space:nowrap;
     margin-bottom:6px;
   }
 
   h2 {
     text-align:center;
     font-size:18px;
-    font-weight:700;
-    margin-top:0;
     margin-bottom:18px;
   }
 
@@ -60,9 +57,14 @@
     font-weight:bold;
   }
 
-  /* FIX: input width correct inside grey box */
-  .input-box input,
-  .input-box select {
+  /* WRAPPER FIX FOR DROPDOWN */
+  .input-wrapper {
+    position:relative; /* FIX: dropdown not visible */
+    width:100%;
+  }
+
+  .input-wrapper input,
+  .input-wrapper select {
     width:100%;
     box-sizing:border-box;
     padding:12px;
@@ -72,18 +74,20 @@
     font-size:15px;
   }
 
-  /* FIX: dropdown not visible in laptop */
   .suggestion-box {
     display:none;
     position:absolute;
+    top:100%;
+    left:0;
     background:white;
     border:1px solid #ccc;
     border-radius:8px;
     width:100%;
     max-height:180px;
     overflow-y:auto;
-    z-index:9999; /* force above card */
+    z-index:999999; /* HUGE Z-INDEX */
   }
+
   .suggestion-box div {
     padding:10px;
     cursor:pointer;
@@ -138,21 +142,24 @@
   <div class="input-box">
 
     <label>POL</label>
-    <div style="position:relative;">
+    <div class="input-wrapper">
       <input id="polInput" type="text" placeholder="Type POL...">
       <div id="polList" class="suggestion-box"></div>
     </div>
 
     <label>POD</label>
-    <div style="position:relative;">
+    <div class="input-wrapper">
       <input id="podInput" type="text" placeholder="Type POD...">
       <div id="podList" class="suggestion-box"></div>
     </div>
 
     <label>Container</label>
-    <select id="container">
-      <option value="">Select Container</option>
-    </select>
+    <div class="input-wrapper">
+      <select id="container">
+        <option value="">Select Container</option>
+      </select>
+      <div id="dummy"></div>
+    </div>
 
   </div>
 
@@ -202,7 +209,7 @@ async function loadData() {
 
 function setupTypeAhead(inputId, listId, items) {
   const input = document.getElementById(inputId);
-  const box   = document.getElementById(listId);
+  const box = document.getElementById(listId);
 
   input.oninput = () => {
     const t = input.value.toLowerCase();
@@ -226,8 +233,8 @@ function setupTypeAhead(inputId, listId, items) {
 }
 
 function updateResults() {
-  const pol  = polInput.value.trim().toLowerCase();
-  const pod  = podInput.value.trim().toLowerCase();
+  const pol = polInput.value.trim().toLowerCase();
+  const pod = podInput.value.trim().toLowerCase();
   const cont = container.value.trim().toLowerCase();
 
   const rows = data.filter(r =>
@@ -236,7 +243,7 @@ function updateResults() {
     r.container.toLowerCase() === cont
   );
 
-  const box  = document.getElementById("resultBox");
+  const box = document.getElementById("resultBox");
   const body = document.getElementById("resultBody");
 
   if (!rows.length) {
