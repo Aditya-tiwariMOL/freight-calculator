@@ -1,319 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Freight Calculator</title>
-<style>
-  :root{
-    --mol-blue: #1E74F0;
-    --light-bg: #F7FBFF;
-    --table-border: #dfeefc;
-  }
 
-  body{
+<style>
+  body {
     margin:0;
-    font-family: Arial, sans-serif;
+    font-family:Arial, sans-serif;
     background:#f4f4f4;
     padding:20px;
   }
 
-  .card{
+  .card {
     background:white;
-    max-width:1100px;
-    margin:0 auto 60px;
-    padding:26px;
+    max-width:900px;
+    margin:0 auto;
+    padding:20px;
     border-radius:14px;
-    box-shadow:0 6px 28px rgba(0,0,0,0.08);
+    box-shadow:0 4px 20px rgba(0,0,0,0.12);
   }
 
-  .logo-text{
+  .logo-text {
     text-align:center;
     font-size:32px;
     font-weight:900;
-    color:var(--mol-blue);
-    margin-bottom:6px;
+    color:#0065B7;
   }
 
-  h2{ text-align:center; margin:0 0 22px 0; font-size:24px; }
+  h2 { text-align:center; margin-bottom:20px; }
 
-  .input-box{
+  .input-box {
     background:#fafafa;
     border-radius:12px;
-    padding:18px;
-    max-width:520px;
-    margin:0 auto;
-    box-sizing:border-box;
+    padding:15px;
+    max-width:450px;
+    margin:0 auto 20px auto;
   }
 
-  label{ display:block; margin-top:12px; font-weight:700; font-size:15px; }
+  label { display:block; margin-top:15px; font-weight:bold; }
+
   input, select {
     width:100%;
-    padding:12px 14px;
-    margin-top:8px;
+    padding:12px;
+    margin-top:6px;
     border-radius:8px;
     border:1px solid #ccc;
     font-size:15px;
-    box-sizing:border-box;
-    background:#fff;
   }
 
-  .suggestion-box{
-    display:none;
-    position:absolute;
-    background:white;
-    border:1px solid #ccc;
-    border-radius:8px;
+  /* Desktop table */
+  .desktop-table {
     width:100%;
-    max-height:180px;
-    overflow:auto;
-    z-index:60;
-    box-sizing:border-box;
-  }
-  .suggestion-box div{ padding:10px; cursor:pointer; }
-  .suggestion-box div:hover{ background:#eaf4ff; }
-
-  /* ----- table container (horizontal scroll) ----- */
-  .result-area{
-    margin-top:26px;
-    display:none; /* appear only when results exist */
-  }
-
-  .table-scroll{
-    overflow-x:auto;
-    border-radius:10px;
-    border:1px solid var(--table-border);
-    background: var(--light-bg);
-    padding:0;
-  }
-
-  table{
     border-collapse:collapse;
-    width:100%;
-    min-width:980px; /* force horizontal scroll on narrow viewports */
-    box-sizing:border-box;
-    background: #fff;
+    margin-top:20px;
+    display:none;
   }
-
-  thead th{
-    position:sticky;
-    top:0;
-    background:var(--mol-blue);
-    color:#fff;
-    padding:12px 14px;
-    font-weight:700;
+  .desktop-table th {
+    background:#1E74F0;
+    color:white;
+    padding:10px;
     text-align:left;
-    border-right:1px solid var(--table-border);
-    white-space:nowrap;
+  }
+  .desktop-table td {
+    padding:10px;
+    border-bottom:1px solid #e2ecff;
+  }
+  .desktop-table .total {
+    color:#D60000;
+    font-weight:bold;
   }
 
-  tbody td{
-    padding:12px 14px;
-    border-bottom:1px solid var(--table-border);
-    border-right:1px solid var(--table-border);
-    vertical-align:middle;
+  /* MOBILE TABLE */
+  .mobile-wrapper {
+    display:none;
+    overflow-x:auto;
+    margin-top:20px;
+  }
+  .mobile-table {
+    border-collapse:collapse;
+    min-width:500px;
+    background:white;
+  }
+  .mobile-table th {
+    background:#1E74F0;
+    color:white;
+    padding:10px;
+    border:1px solid #ccc;
+  }
+  .mobile-table td {
+    padding:10px;
+    border:1px solid #ccc;
     white-space:nowrap;
-    color:#111;
+  }
+  .mobile-table .total {
+    color:#D60000;
+    font-weight:bold;
   }
 
-  tbody tr:nth-child(even) td{ background: #fbfdff; } /* subtle zebra */
-  tbody td:last-child, thead th:last-child { border-right: none; }
-
-  /* emphasize total column */
-  tbody td.total-col { font-weight:700; color:#000; }
-
-  /* small-screen adjustments */
-  @media (max-width:540px){
-    .card { padding:18px; }
-    .input-box { padding:14px; max-width:100%; }
-    .logo-text { font-size:26px; }
-    h2 { font-size:20px; }
-    table { min-width:860px; } /* still scrollable but slightly narrower */
-    thead th, tbody td { padding:10px 12px; font-size:14px; }
+  @media (max-width:768px) {
+    .desktop-table { display:none; }
+    .mobile-wrapper { display:block; }
+  }
+  @media (min-width:769px) {
+    .desktop-table { display:table; }
+    .mobile-wrapper { display:none; }
   }
 </style>
 </head>
-<body>
 
+<body>
 <div class="card">
+
   <div class="logo-text">MOL Logistics</div>
   <h2>Freight Calculator</h2>
 
   <div class="input-box">
+
     <label>POL</label>
-    <div style="position:relative;">
-      <input id="polInput" type="text" placeholder="Type POL..." autocomplete="off">
-      <div id="polList" class="suggestion-box"></div>
-    </div>
+    <input id="polInput" type="text" placeholder="Type POL...">
 
     <label>POD</label>
-    <div style="position:relative;">
-      <input id="podInput" type="text" placeholder="Type POD..." autocomplete="off">
-      <div id="podList" class="suggestion-box"></div>
-    </div>
+    <input id="podInput" type="text" placeholder="Type POD...">
 
     <label>Container</label>
-    <select id="container">
-      <option value="">Select Container</option>
-    </select>
+    <select id="container"></select>
+
   </div>
 
-  <!-- result area (hidden until results present) -->
-  <div id="results" class="result-area">
-    <div class="table-scroll" aria-live="polite">
-      <table role="table" aria-label="Freight results">
-        <thead>
-          <tr>
-            <th>Line</th>
-            <th>Freight</th>
-            <th>BAF</th>
-            <th>Sur.</th>
-            <th>Local</th>
-            <th>Total</th>
-            <th>Remark</th>
-            <th>Route</th>
-            <th>Validity</th>
-          </tr>
-        </thead>
-        <tbody id="resultBody"></tbody>
-      </table>
-    </div>
+  <!-- DESKTOP TABLE -->
+  <table class="desktop-table" id="desktopTable">
+    <thead>
+      <tr>
+        <th>Line</th>
+        <th>Freight</th>
+        <th>BAF</th>
+        <th>Sur.</th>
+        <th>Local</th>
+        <th>Total</th>
+        <th>Remark</th>
+        <th>Route</th>
+        <th>Validity</th>
+      </tr>
+    </thead>
+    <tbody id="desktopBody"></tbody>
+  </table>
+
+  <!-- MOBILE TABLE -->
+  <div class="mobile-wrapper">
+    <table class="mobile-table" id="mobileTable"></table>
   </div>
 
 </div>
 
 <script>
-/* ========== CONFIG ========== */
-/* Replace this with your working Apps Script exec URL */
-const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
+const API_URL =
+"https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
 
 let data = [];
 
-/* Load sheet JSON */
-async function loadData(){
-  try{
-    const r = await fetch(API_URL, {cache: "no-store"});
-    if(!r.ok) throw new Error("Failed loading data: " + r.status);
-    data = await r.json();
+async function loadData() {
+  const res = await fetch(API_URL);
+  data = await res.json();
 
-    // populate unique lists
-    const pols = [...new Set(data.map(d => (d.pol||"").trim()).filter(Boolean))].sort();
-    const pods = [...new Set(data.map(d => (d.pod||"").trim()).filter(Boolean))].sort();
-    const cons = [...new Set(data.map(d => (d.container||"").trim()).filter(Boolean))].sort();
+  const conSel = document.getElementById("container");
+  const containers = [...new Set(data.map(d => d.container))];
+  conSel.innerHTML = containers.map(c => `<option value="${c}">${c}</option>`).join("");
 
-    setupTypeAhead("polInput","polList",pols);
-    setupTypeAhead("podInput","podList",pods);
-
-    const conSel = document.getElementById("container");
-    cons.forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c; opt.textContent = c;
-      conSel.appendChild(opt);
-    });
-    conSel.onchange = updateResults;
-  }catch(err){
-    console.error(err);
-    alert("Could not load data from backend. Check the Apps Script URL or network.");
-  }
+  document.getElementById("polInput").oninput = update;
+  document.getElementById("podInput").oninput = update;
+  conSel.onchange = update;
 }
 
-/* Typeahead helper */
-function setupTypeAhead(inputId, listId, items){
-  const input = document.getElementById(inputId);
-  const box = document.getElementById(listId);
+function update() {
+  const pol = polInput.value.trim().toLowerCase();
+  const pod = podInput.value.trim().toLowerCase();
+  const cont = container.value.trim().toLowerCase();
 
-  input.addEventListener("input", ()=>{
-    const q = input.value.trim().toLowerCase();
-    if(!q){ box.style.display="none"; return; }
-    const filtered = items.filter(v => v.toLowerCase().includes(q)).slice(0,200);
-    if(!filtered.length){ box.style.display="none"; return; }
-    box.innerHTML = filtered.map(x => `<div>${escapeHtml(x)}</div>`).join("");
-    box.style.display = "block";
-
-    box.querySelectorAll("div").forEach(div=>{
-      div.addEventListener("mousedown", e=>{
-        e.preventDefault(); // avoid blur before click
-        input.value = div.textContent;
-        box.style.display = "none";
-        updateResults();
-      });
-    });
-  });
-
-  input.addEventListener("blur", ()=> setTimeout(()=> box.style.display="none",150));
-  input.addEventListener("change", updateResults);
-}
-
-/* escape small html to avoid broken strings */
-function escapeHtml(s){
-  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-}
-
-/* Main result renderer */
-function updateResults(){
-  const pol = (document.getElementById("polInput").value || "").trim().toLowerCase();
-  const pod = (document.getElementById("podInput").value || "").trim().toLowerCase();
-  const cont= (document.getElementById("container").value || "").trim().toLowerCase();
-
-  // require all three chosen (keeps results accurate)
-  if(!pol || !pod || !cont){
-    document.getElementById("results").style.display = "none";
-    document.getElementById("resultBody").innerHTML = "";
-    return;
-  }
-
-  // Filter rows where POL+POD+container match exactly (case-insensitive)
-  const matches = data.filter(r =>
-    (r.pol||"").trim().toLowerCase() === pol &&
-    (r.pod||"").trim().toLowerCase() === pod &&
-    (r.container||"").trim().toLowerCase() === cont
+  const rows = data.filter(r =>
+    r.pol.toLowerCase().includes(pol) &&
+    r.pod.toLowerCase().includes(pod) &&
+    r.container.toLowerCase() === cont
   );
 
-  const body = document.getElementById("resultBody");
-  if(!matches.length){
-    body.innerHTML = `<tr><td colspan="9" style="padding:18px;color:#666;">No results found for selected POL / POD / Container.</td></tr>`;
-    document.getElementById("results").style.display = "block";
+  updateDesktop(rows);
+  updateMobile(rows);
+}
+
+// ---------------- DESKTOP TABLE ----------------
+function updateDesktop(rows) {
+  const body = document.getElementById("desktopBody");
+
+  if (!rows.length) {
+    body.innerHTML = "";
     return;
   }
 
-  // Build rows (each matching row = one <tr>)
-  body.innerHTML = matches.map(row => {
-    // some sheets use different field names; use fallbacks
-    const carrier = escapeHtml(row.carrier || row["Carrier"] || "");
-    const freight = escapeHtml(row.freight || row["Base Freight"] || row["freight"] || "");
-    const baf     = escapeHtml(row.obs_baf || row["OBS/BAF"] || row.obs || "");
-    const sur     = escapeHtml(row.surcharges || row["Surcharges"] || "");
-    const local   = escapeHtml(row.local || row["Local Charges"] || "");
-    const total   = escapeHtml(row.total || row["Total"] || "");
-    const remark  = escapeHtml(row.remark || row["Remark"] || "");
-    const routing = escapeHtml(row.routing || row["Routing"] || "");
-    const valid   = escapeHtml(row.validity || row["Validity"] || "");
-
-    return `<tr>
-      <td>${carrier}</td>
-      <td>${freight}</td>
-      <td>${baf}</td>
-      <td>${sur}</td>
-      <td>${local}</td>
-      <td class="total-col">${total}</td>
-      <td>${remark}</td>
-      <td>${routing}</td>
-      <td>${valid}</td>
-    </tr>`;
-  }).join("");
-
-  // show results area
-  document.getElementById("results").style.display = "block";
-
-  // keep focus visible for keyboard users
-  window.requestAnimationFrame(()=> {
-    const wrapper = document.querySelector(".table-scroll");
-    if(wrapper) wrapper.scrollLeft = 0;
-  });
+  body.innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.carrier}</td>
+      <td>${r.freight}</td>
+      <td>${r.obs}</td>
+      <td>${r.surcharges}</td>
+      <td>${r.local}</td>
+      <td class="total">${r.total}</td>
+      <td>${r.remark}</td>
+      <td>${r.routing}</td>
+      <td>${r.validity}</td>
+    </tr>
+  `).join("");
 }
 
-/* load data on start */
+// ---------------- MOBILE TABLE ----------------
+function updateMobile(rows) {
+  const table = document.getElementById("mobileTable");
+
+  if (!rows.length) {
+    table.innerHTML = "";
+    return;
+  }
+
+  const carriers = rows.map(r => r.carrier);
+
+  const fields = [
+    ["Carrier", rows.map(r => r.carrier)],
+    ["Freight", rows.map(r => r.freight)],
+    ["BAF", rows.map(r => r.obs)],
+    ["Sur.", rows.map(r => r.surcharges)],
+    ["Local", rows.map(r => r.local)],
+    ["Total", rows.map(r => `<span class="total">${r.total}</span>`)],
+    ["Remark", rows.map(r => r.remark)],
+    ["Routing", rows.map(r => r.routing)],
+    ["Validity", rows.map(r => r.validity)],
+  ];
+
+  let html = "<tr><th>Carrier</th>";
+  carriers.forEach(c => html += `<th>${c}</th>`);
+  html += "</tr>";
+
+  fields.forEach(([label, values]) => {
+    html += `<tr><td><b>${label}</b></td>`;
+    values.forEach(v => html += `<td>${v}</td>`);
+    html += "</tr>";
+  });
+
+  table.innerHTML = html;
+}
+
 loadData();
 </script>
+
 </body>
 </html>
