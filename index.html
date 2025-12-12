@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Freight Calculator</title>
 
 <style>
@@ -29,17 +29,24 @@
     color:#0065B7;
   }
 
-  h2 { text-align:center; margin-bottom:20px; }
+  h2 {
+    text-align:center;
+    margin-bottom:20px;
+  }
 
   .input-box {
     background:#fafafa;
     border-radius:12px;
     padding:15px;
     max-width:450px;
-    margin:0 auto 20px auto;
+    margin:0 auto;
   }
 
-  label { display:block; margin-top:15px; font-weight:bold; }
+  label {
+    display:block;
+    margin-top:15px;
+    font-weight:bold;
+  }
 
   input, select {
     width:100%;
@@ -50,62 +57,91 @@
     font-size:15px;
   }
 
-  /* Desktop table */
-  .desktop-table {
+  .suggestion-box {
+    display:none;
+    position:absolute;
+    background:white;
+    border:1px solid #ccc;
+    border-radius:8px;
+    width:100%;
+    max-height:180px;
+    overflow-y:auto;
+    z-index:50;
+  }
+  .suggestion-box div {
+    padding:10px;
+    cursor:pointer;
+  }
+  .suggestion-box div:hover {
+    background:#eaf4ff;
+  }
+
+  .result-wrapper {
+    display:none;
+    margin-top:25px;
+  }
+
+  /* Laptop table */
+  .web-table {
+    display:block;
+    overflow-x:auto;
+  }
+  table {
     width:100%;
     border-collapse:collapse;
-    margin-top:20px;
-    display:none;
+    min-width:800px;
   }
-  .desktop-table th {
+  th {
     background:#1E74F0;
     color:white;
     padding:10px;
     text-align:left;
   }
-  .desktop-table td {
+  td {
     padding:10px;
     border-bottom:1px solid #e2ecff;
   }
-  .desktop-table .total {
-    color:#D60000;
-    font-weight:bold;
-  }
+  td:nth-child(6) { font-weight:bold; }
 
-  /* MOBILE TABLE */
-  .mobile-wrapper {
-    display:none;
-    overflow-x:auto;
-    margin-top:20px;
-  }
-  .mobile-table {
-    border-collapse:collapse;
-    min-width:500px;
-    background:white;
-  }
-  .mobile-table th {
-    background:#1E74F0;
-    color:white;
-    padding:10px;
-    border:1px solid #ccc;
-  }
-  .mobile-table td {
-    padding:10px;
-    border:1px solid #ccc;
-    white-space:nowrap;
-  }
-  .mobile-table .total {
-    color:#D60000;
-    font-weight:bold;
-  }
-
+  /* MOBILE PIVOT TABLE */
   @media (max-width:768px) {
-    .desktop-table { display:none; }
-    .mobile-wrapper { display:block; }
+    .web-table { display:none; }
+    .mobile-table { display:block; }
+
+    .pivot-container {
+      overflow-x:auto;
+      padding:10px 0;
+    }
+
+    .pivot-table {
+      border-collapse:collapse;
+      width:max-content;
+      min-width:350px;
+      background:white;
+    }
+
+    .pivot-table th, .pivot-table td {
+      border:1px solid #ccc;
+      padding:10px;
+      text-align:center;
+      white-space:nowrap;
+    }
+
+    .pivot-table th {
+      background:#1E74F0;
+      color:white;
+      font-weight:bold;
+    }
+
+    .pivot-total {
+      color:#D60000;
+      font-weight:bold;
+    }
   }
+
+  /* Desktop hides pivot */
   @media (min-width:769px) {
-    .desktop-table { display:table; }
-    .mobile-wrapper { display:none; }
+    .mobile-table { display:none; }
   }
 </style>
 </head>
@@ -119,83 +155,129 @@
   <div class="input-box">
 
     <label>POL</label>
-    <input id="polInput" type="text" placeholder="Type POL...">
+    <div style="position:relative;">
+      <input id="polInput" type="text" placeholder="Type POL...">
+      <div id="polList" class="suggestion-box"></div>
+    </div>
 
     <label>POD</label>
-    <input id="podInput" type="text" placeholder="Type POD...">
+    <div style="position:relative;">
+      <input id="podInput" type="text" placeholder="Type POD...">
+      <div id="podList" class="suggestion-box"></div>
+    </div>
 
     <label>Container</label>
-    <select id="container"></select>
+    <select id="container">
+      <option value="">Select Container</option>
+    </select>
 
   </div>
 
-  <!-- DESKTOP TABLE -->
-  <table class="desktop-table" id="desktopTable">
-    <thead>
-      <tr>
-        <th>Line</th>
-        <th>Freight</th>
-        <th>BAF</th>
-        <th>Sur.</th>
-        <th>Local</th>
-        <th>Total</th>
-        <th>Remark</th>
-        <th>Route</th>
-        <th>Validity</th>
-      </tr>
-    </thead>
-    <tbody id="desktopBody"></tbody>
-  </table>
+  <!-- OUTPUT SECTION -->
+  <div class="result-wrapper" id="resultBox">
 
-  <!-- MOBILE TABLE -->
-  <div class="mobile-wrapper">
-    <table class="mobile-table" id="mobileTable"></table>
+    <!-- LAPTOP VIEW TABLE -->
+    <div class="web-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Line</th>
+            <th>Freight</th>
+            <th>BAF</th>
+            <th>Sur.</th>
+            <th>Local</th>
+            <th>Total</th>
+            <th>Remark</th>
+            <th>Route</th>
+            <th>Validity</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+    </div>
+
+    <!-- MOBILE VIEW PIVOT TABLE -->
+    <div class="mobile-table">
+      <div class="pivot-container">
+        <table class="pivot-table" id="pivotTable"></table>
+      </div>
+    </div>
+
   </div>
 
 </div>
 
 <script>
-const API_URL =
-"https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
+// 🔗 YOUR GOOGLE APP SCRIPT URL IS INSERTED CORRECTLY BELOW
+const API_URL = "https://script.google.com/macros/s/AKfycbxFo7nizIQklU0_GXBcBA2qOPkmTDpyeXfTi-raysP5s2U5GLWUa1EU0wep_cOi4imj/exec";
 
 let data = [];
 
+// Load data
 async function loadData() {
   const res = await fetch(API_URL);
   data = await res.json();
 
-  const conSel = document.getElementById("container");
-  const containers = [...new Set(data.map(d => d.container))];
-  conSel.innerHTML = containers.map(c => `<option value="${c}">${c}</option>`).join("");
+  const pols = [...new Set(data.map(d => d.pol))];
+  const pods = [...new Set(data.map(d => d.pod))];
+  const cons = [...new Set(data.map(d => d.container))];
 
-  document.getElementById("polInput").oninput = update;
-  document.getElementById("podInput").oninput = update;
-  conSel.onchange = update;
+  setupTypeAhead("polInput", "polList", pols);
+  setupTypeAhead("podInput", "podList", pods);
+
+  const conSel = document.getElementById("container");
+  cons.forEach(c => conSel.innerHTML += `<option>${c}</option>`);
+  conSel.onchange = updateResults;
 }
 
-function update() {
-  const pol = polInput.value.trim().toLowerCase();
-  const pod = podInput.value.trim().toLowerCase();
+function setupTypeAhead(inputId, listId, items) {
+  const input = document.getElementById(inputId);
+  const box   = document.getElementById(listId);
+
+  input.oninput = () => {
+    const t = input.value.toLowerCase();
+    const f = items.filter(x => x.toLowerCase().includes(t));
+
+    if (!f.length) { box.style.display="none"; return; }
+
+    box.innerHTML = f.map(x => `<div>${x}</div>`).join("");
+    box.style.display = "block";
+
+    box.querySelectorAll("div").forEach(div => {
+      div.onmousedown = () => {
+        input.value = div.textContent;
+        box.style.display="none";
+        updateResults();
+      };
+    });
+  };
+
+  input.onblur = () => setTimeout(() => box.style.display="none", 150);
+}
+
+function updateResults() {
+  const pol  = polInput.value.trim().toLowerCase();
+  const pod  = podInput.value.trim().toLowerCase();
   const cont = container.value.trim().toLowerCase();
 
   const rows = data.filter(r =>
-    r.pol.toLowerCase().includes(pol) &&
-    r.pod.toLowerCase().includes(pod) &&
+    r.pol.toLowerCase() === pol &&
+    r.pod.toLowerCase() === pod &&
     r.container.toLowerCase() === cont
   );
 
-  updateDesktop(rows);
-  updateMobile(rows);
-}
-
-// ---------------- DESKTOP TABLE ----------------
-function updateDesktop(rows) {
-  const body = document.getElementById("desktopBody");
+  const box  = document.getElementById("resultBox");
+  const body = document.getElementById("resultBody");
+  const pivot = document.getElementById("pivotTable");
 
   if (!rows.length) {
-    body.innerHTML = "";
+    box.style.display="none";
+    body.innerHTML="";
+    pivot.innerHTML="";
     return;
   }
+
+  box.style.display="block";
 
   body.innerHTML = rows.map(r => `
     <tr>
@@ -204,48 +286,40 @@ function updateDesktop(rows) {
       <td>${r.obs}</td>
       <td>${r.surcharges}</td>
       <td>${r.local}</td>
-      <td class="total">${r.total}</td>
+      <td>${r.total}</td>
       <td>${r.remark}</td>
       <td>${r.routing}</td>
       <td>${r.validity}</td>
     </tr>
   `).join("");
-}
 
-// ---------------- MOBILE TABLE ----------------
-function updateMobile(rows) {
-  const table = document.getElementById("mobileTable");
-
-  if (!rows.length) {
-    table.innerHTML = "";
-    return;
-  }
-
+  // ---------- MOBILE PIVOT ----------
   const carriers = rows.map(r => r.carrier);
 
   const fields = [
-    ["Carrier", rows.map(r => r.carrier)],
-    ["Freight", rows.map(r => r.freight)],
-    ["BAF", rows.map(r => r.obs)],
-    ["Sur.", rows.map(r => r.surcharges)],
-    ["Local", rows.map(r => r.local)],
-    ["Total", rows.map(r => `<span class="total">${r.total}</span>`)],
-    ["Remark", rows.map(r => r.remark)],
-    ["Routing", rows.map(r => r.routing)],
-    ["Validity", rows.map(r => r.validity)],
+    { label:"Freight", key:"freight" },
+    { label:"BAF", key:"obs" },
+    { label:"Sur.", key:"surcharges" },
+    { label:"Local", key:"local" },
+    { label:"Total", key:"total", class:"pivot-total" },
+    { label:"Remark", key:"remark" },
+    { label:"Routing", key:"routing" },
+    { label:"Validity", key:"validity" }
   ];
 
-  let html = "<tr><th>Carrier</th>";
-  carriers.forEach(c => html += `<th>${c}</th>`);
-  html += "</tr>";
+  let html = "<tr><th>Field</th>" +
+             carriers.map(c => `<th>${c}</th>`).join("") +
+             "</tr>";
 
-  fields.forEach(([label, values]) => {
-    html += `<tr><td><b>${label}</b></td>`;
-    values.forEach(v => html += `<td>${v}</td>`);
-    html += "</tr>";
+  fields.forEach(f => {
+    html += `<tr><td>${f.label}</td>` +
+      rows.map(r =>
+        `<td class="${f.class || ""}">${r[f.key]}</td>`
+      ).join("") +
+      "</tr>";
   });
 
-  table.innerHTML = html;
+  pivot.innerHTML = html;
 }
 
 loadData();
