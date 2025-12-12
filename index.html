@@ -29,10 +29,7 @@
     color:#0065B7;
   }
 
-  h2 {
-    text-align:center;
-    margin-bottom:20px;
-  }
+  h2 { text-align:center; margin-bottom:20px; }
 
   .input-box {
     background:#fafafa;
@@ -42,11 +39,7 @@
     margin:0 auto;
   }
 
-  label {
-    display:block;
-    margin-top:15px;
-    font-weight:bold;
-  }
+  label { display:block; margin-top:15px; font-weight:bold; }
 
   input, select {
     width:100%;
@@ -68,50 +61,67 @@
     overflow-y:auto;
     z-index:50;
   }
-  .suggestion-box div {
-    padding:10px;
-    cursor:pointer;
-  }
-  .suggestion-box div:hover {
-    background:#eaf4ff;
-  }
+  .suggestion-box div { padding:10px; cursor:pointer; }
+  .suggestion-box div:hover { background:#eaf4ff; }
 
-  .result-wrapper {
-    display:none;
-    margin-top:25px;
-    background:#f7fbff;
-    padding:15px;
-    border-radius:12px;
-  }
-
-  /* 🔥 NEW: Horizontal scroll for table */
-  .table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
-    border-radius:12px;
-  }
+  /* DESKTOP full table */
+  .result-wrapper-table { display:none; overflow-x:auto; }
 
   table {
     width:100%;
     border-collapse:collapse;
-    min-width:900px; /* ensures scrolling */
+    margin-top:20px;
   }
-
   th {
     background:#1E74F0;
     color:white;
     padding:10px;
     text-align:left;
   }
-
   td {
     padding:10px;
     border-bottom:1px solid #e2ecff;
   }
 
-  td:nth-child(6) { font-weight:bold; }
+  /* MOBILE compact matrix */
+  .mobile-matrix {
+    display:none;
+    background:#f7fbff;
+    padding:15px;
+    border-radius:12px;
+    margin-top:20px;
+  }
+
+  .mobile-row {
+    border-bottom:1px solid #d9e6ff;
+    padding:10px 0;
+  }
+
+  .mobile-row:last-child { border-bottom:none; }
+
+  .matrix-title {
+    font-weight:bold;
+    margin-bottom:6px;
+    color:#004c95;
+  }
+
+  .matrix-values {
+    display:flex;
+    justify-content:space-between;
+    font-size:15px;
+  }
+
+  /* Show MOBILE version only on small screens */
+  @media (max-width: 600px) {
+    .result-wrapper-table { display:none !important; }
+    .mobile-matrix { display:block !important; }
+  }
+
+  /* Show DESKTOP version on big screens */
+  @media (min-width: 601px) {
+    .result-wrapper-table { display:block !important; }
+    .mobile-matrix { display:none !important; }
+  }
 </style>
 </head>
 
@@ -122,7 +132,6 @@
   <h2>Freight Calculator</h2>
 
   <div class="input-box">
-
     <label>POL</label>
     <div style="position:relative;">
       <input id="polInput" type="text" placeholder="Type POL...">
@@ -139,39 +148,38 @@
     <select id="container">
       <option value="">Select Container</option>
     </select>
-
   </div>
 
-  <div class="result-wrapper" id="resultBox">
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Line</th>
-            <th>Freight</th>
-            <th>BAF</th>
-            <th>Sur.</th>
-            <th>Local</th>
-            <th>Total</th>
-            <th>Remark</th>
-            <th>Route</th>
-            <th>Validity</th>
-          </tr>
-        </thead>
-        <tbody id="resultBody"></tbody>
-      </table>
-    </div>
+  <!-- DESKTOP TABLE -->
+  <div class="result-wrapper-table" id="resultTableBox">
+    <table>
+      <thead>
+        <tr>
+          <th>Line</th>
+          <th>Freight</th>
+          <th>BAF</th>
+          <th>Sur.</th>
+          <th>Local</th>
+          <th>Total</th>
+          <th>Remark</th>
+          <th>Route</th>
+          <th>Validity</th>
+        </tr>
+      </thead>
+      <tbody id="resultBody"></tbody>
+    </table>
   </div>
+
+  <!-- MOBILE MATRIX -->
+  <div class="mobile-matrix" id="mobileMatrix"></div>
 
 </div>
 
 <script>
-// 🔗 YOUR LIVE DEPLOYMENT URL:
 const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
 
 let data = [];
 
-// Load freight data
 async function loadData() {
   const res = await fetch(API_URL);
   data = await res.json();
@@ -183,12 +191,11 @@ async function loadData() {
   setupTypeAhead("polInput", "polList", pols);
   setupTypeAhead("podInput", "podList", pods);
 
-  const conSel = document.getElementById("container");
-  cons.forEach(c => conSel.innerHTML += `<option>${c}</option>`);
-  conSel.onchange = updateResults;
+  const sel = document.getElementById("container");
+  cons.forEach(c => sel.innerHTML += `<option>${c}</option>`);
+  sel.onchange = updateResults;
 }
 
-// Typeahead dropdown
 function setupTypeAhead(inputId, listId, items) {
   const input = document.getElementById(inputId);
   const box   = document.getElementById(listId);
@@ -196,7 +203,6 @@ function setupTypeAhead(inputId, listId, items) {
   input.oninput = () => {
     const t = input.value.toLowerCase();
     const f = items.filter(x => x.toLowerCase().includes(t));
-
     if (!f.length) { box.style.display="none"; return; }
 
     box.innerHTML = f.map(x => `<div>${x}</div>`).join("");
@@ -214,7 +220,6 @@ function setupTypeAhead(inputId, listId, items) {
   input.onblur = () => setTimeout(() => box.style.display="none", 150);
 }
 
-// Show result rows
 function updateResults() {
   const pol  = polInput.value.trim().toLowerCase();
   const pod  = podInput.value.trim().toLowerCase();
@@ -226,14 +231,18 @@ function updateResults() {
     r.container.toLowerCase() === cont
   );
 
-  const box  = document.getElementById("resultBox");
+  // Desktop table
   const body = document.getElementById("resultBody");
+  const tableBox = document.getElementById("resultTableBox");
 
   if (!rows.length) {
-    box.style.display="none";
-    body.innerHTML="";
+    body.innerHTML = "";
+    tableBox.style.display = "none";
+    mobileMatrix.innerHTML = "";
     return;
   }
+
+  tableBox.style.display = "block";
 
   body.innerHTML = rows.map(r => `
     <tr>
@@ -246,14 +255,56 @@ function updateResults() {
       <td>${r.remark}</td>
       <td>${r.routing}</td>
       <td>${r.validity}</td>
-    </tr>
-  `).join("");
+    </tr>`).join("");
 
-  box.style.display="block";
+  // MOBILE MATRIX
+  const carriers = rows.map(r => r.carrier).join(" | ");
+  const mobile = document.getElementById("mobileMatrix");
+
+  mobile.innerHTML = `
+    <div class="mobile-row">
+      <div class="matrix-title">Carrier</div>
+      <div class="matrix-values">${rows.map(r => r.carrier).join(" | ")}</div>
+    </div>
+
+    <div class="mobile-row">
+      <div class="matrix-title">Freight</div>
+      <div class="matrix-values">${rows.map(r => r.freight).join(" | ")}</div>
+    </div>
+
+    <div class="mobile-row">
+      <div class="matrix-title">BAF</div>
+      <div class="matrix-values">${rows.map(r => r.obs).join(" | ")}</div>
+    </div>
+
+    <div class="mobile-row">
+      <div class="matrix-title">Surcharge</div>
+      <div class="matrix-values">${rows.map(r => r.surcharges).join(" | ")}</div>
+    </div>
+
+    <div class="mobile-row">
+      <div class="matrix-title">Local</div>
+      <div class="matrix-values">${rows.map(r => r.local).join(" | ")}</div>
+    </div>
+
+    <div class="mobile-row">
+      <div class="matrix-title">Total</div>
+      <div class="matrix-values">${rows.map(r => r.total).join(" | ")}</div>
+    </div>
+
+    <div class="mobile-row">
+      <div class="matrix-title">Routing</div>
+      <div class="matrix-values">${rows.map(r => r.routing).join(" | ")}</div>
+    </div>
+
+    <div class="mobile-row">
+      <div class="matrix-title">Validity</div>
+      <div class="matrix-values">${rows.map(r => r.validity).join(" | ")}</div>
+    </div>
+  `;
 }
 
 loadData();
 </script>
-
 </body>
 </html>
