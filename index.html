@@ -1,99 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Freight Calculator</title>
-
-<style>
-  body {
-    margin:0;
-    font-family:Arial, sans-serif;
-    background:#f4f4f4;
-    padding:20px;
-  }
-
-  .card {
-    background:white;
-    max-width:900px;
-    margin:auto;
-    padding:20px;
-    border-radius:14px;
-    box-shadow:0 4px 20px rgba(0,0,0,0.12);
-  }
-
-  h2 {
-    text-align:center;
-    margin-bottom:20px;
-  }
-
-  label {
-    margin-top:15px;
-    font-weight:bold;
-    display:block;
-  }
-
-  input, select {
-    width:100%;
-    padding:12px;
-    margin-top:6px;
-    border-radius:8px;
-    border:1px solid #ccc;
-    font-size:15px;
-  }
-
-  .suggestion-box {
-    display:none;
-    position:absolute;
-    background:white;
-    border:1px solid #ccc;
-    width:100%;
-    max-height:180px;
-    overflow-y:auto;
-    z-index:20;
-  }
-
-  .suggestion-box div {
-    padding:10px;
-    cursor:pointer;
-  }
-
-  .suggestion-box div:hover {
-    background:#eaf4ff;
-  }
-
-  .result-wrapper {
-    display:none;
-    margin-top:25px;
-    background:#f7fbff;
-    padding:15px;
-    border-radius:12px;
-  }
-
-  table {
-    width:100%;
-    border-collapse:collapse;
-    min-width:900px;
-  }
-
-  th {
-    background:#1E74F0;
-    color:white;
-    padding:10px;
-    text-align:left;
-  }
-
-  td {
-    padding:10px;
-    border-bottom:1px solid #e2ecff;
-  }
-</style>
-</head>
-
 <body>
 
 <div class="card">
-
   <h2>Freight Calculator</h2>
 
   <label>POL</label>
@@ -131,29 +38,25 @@
       <tbody id="resultBody"></tbody>
     </table>
   </div>
-
 </div>
 
 <script>
-/* ===== APPS SCRIPT URL (ALREADY SET) ===== */
-const API_URL =
-"https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
 
-/* ===== DOM REFERENCES ===== */
+/* ===== DOM ===== */
 const polInput   = document.getElementById("polInput");
 const podInput   = document.getElementById("podInput");
 const container  = document.getElementById("container");
+const polList    = document.getElementById("polList");
+const podList    = document.getElementById("podList");
 const resultBox  = document.getElementById("resultBox");
 const resultBody = document.getElementById("resultBody");
 
-const polListBox = document.getElementById("polList");
-const podListBox = document.getElementById("podList");
-
-/* ===== TYPEAHEAD HANDLER ===== */
-function setupTypeAhead(input, box, list) {
+/* ===== TYPEAHEAD (FIXED) ===== */
+function setupTypeAhead(input, box, items) {
   input.oninput = () => {
     const t = input.value.toLowerCase();
-    const filtered = list.filter(x => x.toLowerCase().includes(t));
+    const filtered = items.filter(x => x.toLowerCase().includes(t));
 
     if (!filtered.length) {
       box.style.display = "none";
@@ -163,9 +66,9 @@ function setupTypeAhead(input, box, list) {
     box.innerHTML = filtered.map(x => `<div>${x}</div>`).join("");
     box.style.display = "block";
 
-    box.querySelectorAll("div").forEach(div => {
-      div.onmousedown = () => {
-        input.value = div.textContent;
+    box.querySelectorAll("div").forEach(d => {
+      d.onmousedown = () => {
+        input.value = d.textContent;
         box.style.display = "none";
         input.dispatchEvent(new Event("change"));
       };
@@ -175,10 +78,10 @@ function setupTypeAhead(input, box, list) {
   input.onblur = () => setTimeout(() => box.style.display="none", 150);
 }
 
-/* ===== LOAD POL ON PAGE LOAD ===== */
+/* ===== LOAD POL ===== */
 (async function loadPOL() {
   const pols = await fetch(API_URL + "?action=pol").then(r => r.json());
-  setupTypeAhead(polInput, polListBox, pols);
+  setupTypeAhead(polInput, polList, pols);
 })();
 
 /* ===== LOAD POD AFTER POL ===== */
@@ -191,7 +94,7 @@ polInput.onchange = async () => {
     API_URL + "?action=pod&pol=" + encodeURIComponent(polInput.value)
   ).then(r => r.json());
 
-  setupTypeAhead(podInput, podListBox, pods);
+  setupTypeAhead(podInput, podList, pods);
 };
 
 /* ===== LOAD CONTAINER AFTER POD ===== */
@@ -205,7 +108,11 @@ podInput.onchange = async () => {
   ).then(r => r.json());
 
   container.innerHTML = '<option value="">Select Container</option>';
-  cons.forEach(c => container.innerHTML += `<option>${c}</option>`);
+  cons.forEach(c => {
+    const opt = document.createElement("option");
+    opt.textContent = c;
+    container.appendChild(opt);
+  });
 };
 
 /* ===== FINAL RESULT ===== */
