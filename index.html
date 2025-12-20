@@ -22,20 +22,22 @@
     box-shadow:0 4px 20px rgba(0,0,0,0.12);
   }
 
+  /* LOGO TEXT — UPDATED COLOR */
   .logo-text {
     text-align:center;
     font-size:18px;
     font-weight:900;
-    color:#164A9D;
+    color:#164A9D;  /* NEW COLOR */
     white-space:nowrap;
   }
 
+  /* FREIGHT CALCULATOR TITLE — BLACK */
   h2 {
     text-align:center;
     font-size:20px;
     margin-bottom:20px;
     margin-top:10px;
-    color:black;
+    color: black; /* BACK TO BLACK */
   }
 
   .input-box {
@@ -43,23 +45,49 @@
     border-radius:12px;
     padding:15px;
     max-width:450px;
+    width:100%;
+    box-sizing:border-box;
     margin:0 auto;
     display:flex;
     flex-direction:column;
+    align-items:stretch;
   }
 
   label {
+    display:block;
     margin-top:15px;
     font-weight:bold;
   }
 
   input, select {
+    display:block;
     width:100%;
     padding:12px;
-    margin-top:6px;
+    margin:6px 0 0 0;
     border-radius:8px;
     border:1px solid #ccc;
     font-size:15px;
+    box-sizing:border-box;
+    background:white;
+  }
+
+  .suggestion-box {
+    display:none;
+    position:absolute;
+    background:white;
+    border:1px solid #ccc;
+    border-radius:8px;
+    width:100%;
+    max-height:180px;
+    overflow-y:auto;
+    z-index:50;
+  }
+  .suggestion-box div {
+    padding:10px;
+    cursor:pointer;
+  }
+  .suggestion-box div:hover {
+    background:#eaf4ff;
   }
 
   .result-wrapper {
@@ -67,6 +95,13 @@
     margin-top:25px;
     background:#f7fbff;
     padding:15px;
+    border-radius:12px;
+  }
+
+  .table-wrapper {
+    width:100%;
+    overflow-x: auto;
+    white-space: nowrap;
     border-radius:12px;
   }
 
@@ -89,6 +124,12 @@
   }
 
   td:nth-child(6) { font-weight:bold; }
+
+  @media (max-width:420px) {
+    body { padding:12px; }
+    .card { padding:12px; }
+    .input-box { padding:12px; }
+  }
 </style>
 </head>
 
@@ -97,7 +138,8 @@
 
   <div style="text-align:center; margin-bottom:10px;">
     <img src="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/MOL%20Logo%2001.png"
-         style="height:35px;">
+         alt="MOL Logo"
+         style="height:35px; width:auto; margin-bottom:5px;">
     <div class="logo-text">MOL Logistics (INDIA) PVT. LTD.</div>
   </div>
 
@@ -106,63 +148,103 @@
   <div class="input-box">
 
     <label>POL</label>
-    <input id="polInput" placeholder="Type POL...">
+    <div style="position:relative;">
+      <input id="polInput" type="text" placeholder="Type POL...">
+      <div id="polList" class="suggestion-box"></div>
+    </div>
 
     <label>POD</label>
-    <input id="podInput" placeholder="Type POD...">
+    <div style="position:relative;">
+      <input id="podInput" type="text" placeholder="Type POD...">
+      <div id="podList" class="suggestion-box"></div>
+    </div>
 
     <label>Container</label>
     <select id="container">
       <option value="">Select Container</option>
-      <option>20GP</option>
-      <option>40GP</option>
-      <option>40GP/HC</option>
     </select>
 
   </div>
 
   <div class="result-wrapper" id="resultBox">
-    <table>
-      <thead>
-        <tr>
-          <th>Line</th>
-          <th>Freight</th>
-          <th>BAF</th>
-          <th>Sur.</th>
-          <th>Local</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody id="resultBody"></tbody>
-    </table>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Line</th>
+            <th>Freight</th>
+            <th>BAF</th>
+            <th>Sur.</th>
+            <th>Local</th>
+            <th>Total</th>
+            <th>Remark</th>
+            <th>Route</th>
+            <th>Validity</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+    </div>
   </div>
 
 </div>
 
 <script>
-const API_URL =
-"https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
 
-document.getElementById("polInput").addEventListener("change", updateResults);
-document.getElementById("podInput").addEventListener("change", updateResults);
-document.getElementById("container").addEventListener("change", updateResults);
+let data = [];
 
-async function updateResults() {
+async function loadData() {
+  const res = await fetch(API_URL);
+  data = await res.json();
 
-  const pol  = polInput.value.trim();
-  const pod  = podInput.value.trim();
-  const cont = container.value.trim();
+  const pols = [...new Set(data.map(d => d.pol))];
+  const pods = [...new Set(data.map(d => d.pod))];
+  const cons = [...new Set(data.map(d => d.container))];
 
-  if (!pol || !pod || !cont) return;
+  setupTypeAhead("polInput", "polList", pols);
+  setupTypeAhead("podInput", "podList", pods);
 
-  const url =
-    API_URL +
-    "?pol=" + encodeURIComponent(pol) +
-    "&pod=" + encodeURIComponent(pod) +
-    "&container=" + encodeURIComponent(cont);
+  const conSel = document.getElementById("container");
+  cons.forEach(c => conSel.innerHTML += `<option>${c}</option>`);
+  conSel.onchange = updateResults;
+}
 
-  const res = await fetch(url);
-  const rows = await res.json();
+function setupTypeAhead(inputId, listId, items) {
+  const input = document.getElementById(inputId);
+  const box   = document.getElementById(listId);
+
+  input.oninput = () => {
+    const t = input.value.toLowerCase();
+    const f = items.filter(x => x.toLowerCase().includes(t));
+
+    if (!f.length) { box.style.display="none"; return; }
+
+    box.innerHTML = f.map(x => `<div>${x}</div>`).join("");
+    box.style.display = "block";
+
+    box.querySelectorAll("div").forEach(div => {
+      div.onmousedown = () => {
+        input.value = div.textContent;
+        box.style.display="none";
+        updateResults();
+      };
+    });
+  };
+
+  input.onblur = () => setTimeout(() => box.style.display="none", 150);
+}
+
+function updateResults() {
+  const pol  = polInput.value.trim().toLowerCase();
+  const pod  = podInput.value.trim().toLowerCase();
+  const cont = container.value.trim().toLowerCase();
+
+  const rows = data.filter(r =>
+    r.pol.toLowerCase().includes(pol) &&
+    r.pod.toLowerCase().includes(pod) &&
+    r.container.toLowerCase() === cont
+  );
 
   const box  = document.getElementById("resultBox");
   const body = document.getElementById("resultBody");
@@ -181,11 +263,16 @@ async function updateResults() {
       <td>${r.surcharges}</td>
       <td>${r.local}</td>
       <td>${r.total}</td>
+      <td>${r.remark}</td>
+      <td>${r.routing}</td>
+      <td>${r.validity}</td>
     </tr>
   `).join("");
 
   box.style.display="block";
 }
+
+loadData();
 </script>
 
 </body>
