@@ -6,112 +6,203 @@
 <title>Freight Calculator</title>
 
 <style>
-  body { margin:0; font-family:Arial; background:#f4f4f4; padding:20px; }
-  .card { background:white; max-width:900px; margin:auto; padding:20px; border-radius:14px; }
-  h2 { text-align:center; margin-bottom:20px; }
-  label { margin-top:15px; font-weight:bold; display:block; }
-  input, select { width:100%; padding:12px; margin-top:6px; border-radius:8px; border:1px solid #ccc; }
-  .suggestion-box { display:none; position:absolute; background:white; border:1px solid #ccc; width:100%; max-height:180px; overflow-y:auto; z-index:10; }
-  .suggestion-box div { padding:10px; cursor:pointer; }
-  .suggestion-box div:hover { background:#eaf4ff; }
-  .result-wrapper { display:none; margin-top:25px; background:#f7fbff; padding:15px; border-radius:12px; }
-  table { width:100%; border-collapse:collapse; min-width:900px; }
-  th { background:#1E74F0; color:white; padding:10px; }
-  td { padding:10px; border-bottom:1px solid #e2ecff; }
+  body {
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:#f4f4f4;
+    padding:20px;
+  }
+
+  .card {
+    background:white;
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+    border-radius:14px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.12);
+  }
+
+  h2 {
+    text-align:center;
+    margin-bottom:20px;
+  }
+
+  label {
+    margin-top:15px;
+    font-weight:bold;
+    display:block;
+  }
+
+  input, select {
+    width:100%;
+    padding:12px;
+    margin-top:6px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-size:15px;
+  }
+
+  .suggestion-box {
+    display:none;
+    position:absolute;
+    background:white;
+    border:1px solid #ccc;
+    width:100%;
+    max-height:180px;
+    overflow-y:auto;
+    z-index:20;
+  }
+
+  .suggestion-box div {
+    padding:10px;
+    cursor:pointer;
+  }
+
+  .suggestion-box div:hover {
+    background:#eaf4ff;
+  }
+
+  .result-wrapper {
+    display:none;
+    margin-top:25px;
+    background:#f7fbff;
+    padding:15px;
+    border-radius:12px;
+  }
+
+  table {
+    width:100%;
+    border-collapse:collapse;
+    min-width:900px;
+  }
+
+  th {
+    background:#1E74F0;
+    color:white;
+    padding:10px;
+    text-align:left;
+  }
+
+  td {
+    padding:10px;
+    border-bottom:1px solid #e2ecff;
+  }
 </style>
 </head>
 
 <body>
+
 <div class="card">
 
-<h2>Freight Calculator</h2>
+  <h2>Freight Calculator</h2>
 
-<label>POL</label>
-<div style="position:relative;">
-  <input id="polInput" placeholder="Type POL">
-  <div id="polList" class="suggestion-box"></div>
-</div>
+  <label>POL</label>
+  <div style="position:relative;">
+    <input id="polInput" placeholder="Type POL">
+    <div id="polList" class="suggestion-box"></div>
+  </div>
 
-<label>POD</label>
-<div style="position:relative;">
-  <input id="podInput" placeholder="Type POD">
-  <div id="podList" class="suggestion-box"></div>
-</div>
+  <label>POD</label>
+  <div style="position:relative;">
+    <input id="podInput" placeholder="Type POD">
+    <div id="podList" class="suggestion-box"></div>
+  </div>
 
-<label>Container</label>
-<select id="container">
-  <option value="">Select Container</option>
-</select>
+  <label>Container</label>
+  <select id="container">
+    <option value="">Select Container</option>
+  </select>
 
-<div class="result-wrapper" id="resultBox">
-<table>
-<thead>
-<tr>
-  <th>Line</th>
-  <th>Freight</th>
-  <th>BAF</th>
-  <th>Sur</th>
-  <th>Local</th>
-  <th>Total</th>
-  <th>Remark</th>
-  <th>Route</th>
-  <th>Validity</th>
-</tr>
-</thead>
-<tbody id="resultBody"></tbody>
-</table>
-</div>
+  <div class="result-wrapper" id="resultBox">
+    <table>
+      <thead>
+        <tr>
+          <th>Line</th>
+          <th>Freight</th>
+          <th>BAF</th>
+          <th>Sur</th>
+          <th>Local</th>
+          <th>Total</th>
+          <th>Remark</th>
+          <th>Route</th>
+          <th>Validity</th>
+        </tr>
+      </thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+  </div>
 
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
+/* ===== APPS SCRIPT URL (ALREADY SET) ===== */
+const API_URL =
+"https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
 
-/* ===== TYPEAHEAD ===== */
-function setupTypeAhead(inputId, listId, fetchFn) {
-  const input = document.getElementById(inputId);
-  const box = document.getElementById(listId);
+/* ===== DOM REFERENCES ===== */
+const polInput   = document.getElementById("polInput");
+const podInput   = document.getElementById("podInput");
+const container  = document.getElementById("container");
+const resultBox  = document.getElementById("resultBox");
+const resultBody = document.getElementById("resultBody");
 
-  input.oninput = async () => {
-    const list = await fetchFn(input.value);
-    if (!list.length) { box.style.display="none"; return; }
+const polListBox = document.getElementById("polList");
+const podListBox = document.getElementById("podList");
 
-    box.innerHTML = list.map(x => `<div>${x}</div>`).join("");
-    box.style.display="block";
+/* ===== TYPEAHEAD HANDLER ===== */
+function setupTypeAhead(input, box, list) {
+  input.oninput = () => {
+    const t = input.value.toLowerCase();
+    const filtered = list.filter(x => x.toLowerCase().includes(t));
 
-    box.querySelectorAll("div").forEach(d => {
-      d.onmousedown = () => {
-        input.value = d.textContent;
-        box.style.display="none";
+    if (!filtered.length) {
+      box.style.display = "none";
+      return;
+    }
+
+    box.innerHTML = filtered.map(x => `<div>${x}</div>`).join("");
+    box.style.display = "block";
+
+    box.querySelectorAll("div").forEach(div => {
+      div.onmousedown = () => {
+        input.value = div.textContent;
+        box.style.display = "none";
         input.dispatchEvent(new Event("change"));
       };
     });
   };
 
-  input.onblur = () => setTimeout(()=>box.style.display="none",150);
+  input.onblur = () => setTimeout(() => box.style.display="none", 150);
 }
 
-/* ===== LOAD POL ===== */
-setupTypeAhead("polInput", "polList", async () => {
-  return fetch(API_URL + "?action=pol").then(r=>r.json());
-});
+/* ===== LOAD POL ON PAGE LOAD ===== */
+(async function loadPOL() {
+  const pols = await fetch(API_URL + "?action=pol").then(r => r.json());
+  setupTypeAhead(polInput, polListBox, pols);
+})();
 
 /* ===== LOAD POD AFTER POL ===== */
-polInput.onchange = () => {
-  setupTypeAhead("podInput", "podList", async () => {
-    return fetch(API_URL + "?action=pod&pol=" + encodeURIComponent(polInput.value))
-      .then(r=>r.json());
-  });
+polInput.onchange = async () => {
+  podInput.value = "";
+  container.innerHTML = '<option value="">Select Container</option>';
+  resultBox.style.display = "none";
+
+  const pods = await fetch(
+    API_URL + "?action=pod&pol=" + encodeURIComponent(polInput.value)
+  ).then(r => r.json());
+
+  setupTypeAhead(podInput, podListBox, pods);
 };
 
 /* ===== LOAD CONTAINER AFTER POD ===== */
 podInput.onchange = async () => {
-  const res = await fetch(
+  resultBox.style.display = "none";
+
+  const cons = await fetch(
     API_URL +
     "?action=container&pol=" + encodeURIComponent(polInput.value) +
     "&pod=" + encodeURIComponent(podInput.value)
-  );
-  const cons = await res.json();
+  ).then(r => r.json());
 
   container.innerHTML = '<option value="">Select Container</option>';
   cons.forEach(c => container.innerHTML += `<option>${c}</option>`);
@@ -119,16 +210,18 @@ podInput.onchange = async () => {
 
 /* ===== FINAL RESULT ===== */
 container.onchange = async () => {
-  const url =
+  const rows = await fetch(
     API_URL +
     "?action=rates" +
     "&pol=" + encodeURIComponent(polInput.value) +
     "&pod=" + encodeURIComponent(podInput.value) +
-    "&container=" + encodeURIComponent(container.value);
+    "&container=" + encodeURIComponent(container.value)
+  ).then(r => r.json());
 
-  const rows = await fetch(url).then(r=>r.json());
-
-  if (!rows.length) { resultBox.style.display="none"; return; }
+  if (!rows.length) {
+    resultBox.style.display = "none";
+    return;
+  }
 
   resultBody.innerHTML = rows.map(r => `
     <tr>
@@ -144,7 +237,7 @@ container.onchange = async () => {
     </tr>
   `).join("");
 
-  resultBox.style.display="block";
+  resultBox.style.display = "block";
 };
 </script>
 
