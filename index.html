@@ -43,23 +43,29 @@
     border-radius:12px;
     padding:15px;
     max-width:450px;
+    width:100%;
+    box-sizing:border-box;
     margin:0 auto;
     display:flex;
     flex-direction:column;
   }
 
   label {
+    display:block;
     margin-top:15px;
     font-weight:bold;
   }
 
   input, select {
+    display:block;
     width:100%;
     padding:12px;
     margin-top:6px;
     border-radius:8px;
     border:1px solid #ccc;
     font-size:15px;
+    background:white;
+    box-sizing:border-box; /* ✅ CRITICAL FIX */
   }
 
   .suggestion-box {
@@ -73,10 +79,12 @@
     overflow-y:auto;
     z-index:50;
   }
+
   .suggestion-box div {
     padding:10px;
     cursor:pointer;
   }
+
   .suggestion-box div:hover {
     background:#eaf4ff;
   }
@@ -93,6 +101,7 @@
     width:100%;
     overflow-x:auto;
     white-space:nowrap;
+    border-radius:12px;
   }
 
   table {
@@ -114,15 +123,23 @@
   }
 
   td:nth-child(6) { font-weight:bold; }
+
+  @media (max-width:420px) {
+    body { padding:12px; }
+    .card { padding:12px; }
+    .input-box { padding:12px; }
+  }
 </style>
 </head>
 
 <body>
+
 <div class="card">
 
   <div style="text-align:center; margin-bottom:10px;">
     <img src="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/MOL%20Logo%2001.png"
-         style="height:35px; margin-bottom:5px;">
+         alt="MOL Logo"
+         style="height:35px; width:auto; margin-bottom:5px;">
     <div class="logo-text">MOL Logistics (INDIA) PVT. LTD.</div>
   </div>
 
@@ -173,7 +190,8 @@
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
+const API_URL =
+"https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
 
 const polInput   = document.getElementById("polInput");
 const podInput   = document.getElementById("podInput");
@@ -190,38 +208,40 @@ function setupTypeAhead(input, box, items) {
     const filtered = items.filter(x => x.toLowerCase().includes(t));
 
     if (!filtered.length) {
-      box.style.display="none";
+      box.style.display = "none";
       return;
     }
 
     box.innerHTML = filtered.map(x => `<div>${x}</div>`).join("");
-    box.style.display="block";
+    box.style.display = "block";
 
     box.querySelectorAll("div").forEach(d => {
       d.onmousedown = () => {
         input.value = d.textContent;
-        box.style.display="none";
+        box.style.display = "none";
         input.dispatchEvent(new Event("change"));
       };
     });
   };
-  input.onblur = () => setTimeout(()=>box.style.display="none",150);
+
+  input.onblur = () => setTimeout(() => box.style.display="none", 150);
 }
 
 /* ===== LOAD POL ===== */
-(async () => {
-  const pols = await fetch(API_URL + "?action=pol").then(r=>r.json());
+(async function () {
+  const pols = await fetch(API_URL + "?action=pol").then(r => r.json());
   setupTypeAhead(polInput, polList, pols);
 })();
 
 /* ===== LOAD POD ===== */
 polInput.onchange = async () => {
-  podInput.value="";
-  container.innerHTML='<option value="">Select Container</option>';
-  resultBox.style.display="none";
+  podInput.value = "";
+  container.innerHTML = '<option value="">Select Container</option>';
+  resultBox.style.display = "none";
 
-  const pods = await fetch(API_URL + "?action=pod&pol=" + encodeURIComponent(polInput.value))
-    .then(r=>r.json());
+  const pods = await fetch(
+    API_URL + "?action=pod&pol=" + encodeURIComponent(polInput.value)
+  ).then(r => r.json());
 
   setupTypeAhead(podInput, podList, pods);
 };
@@ -229,25 +249,27 @@ polInput.onchange = async () => {
 /* ===== LOAD CONTAINER ===== */
 podInput.onchange = async () => {
   const cons = await fetch(
-    API_URL + "?action=container&pol=" + encodeURIComponent(polInput.value) +
+    API_URL +
+    "?action=container&pol=" + encodeURIComponent(polInput.value) +
     "&pod=" + encodeURIComponent(podInput.value)
-  ).then(r=>r.json());
+  ).then(r => r.json());
 
-  container.innerHTML='<option value="">Select Container</option>';
+  container.innerHTML = '<option value="">Select Container</option>';
   cons.forEach(c => container.innerHTML += `<option>${c}</option>`);
 };
 
 /* ===== FINAL RESULT ===== */
 container.onchange = async () => {
   const rows = await fetch(
-    API_URL + "?action=rates" +
+    API_URL +
+    "?action=rates" +
     "&pol=" + encodeURIComponent(polInput.value) +
     "&pod=" + encodeURIComponent(podInput.value) +
     "&container=" + encodeURIComponent(container.value)
-  ).then(r=>r.json());
+  ).then(r => r.json());
 
   if (!rows.length) {
-    resultBox.style.display="none";
+    resultBox.style.display = "none";
     return;
   }
 
@@ -265,7 +287,7 @@ container.onchange = async () => {
     </tr>
   `).join("");
 
-  resultBox.style.display="block";
+  resultBox.style.display = "block";
 };
 </script>
 
