@@ -107,7 +107,7 @@ input, select {
 table {
   width:100%;
   border-collapse:collapse;
-  min-width:100%;
+  min-width:100%; /* ✅ FIXED */
 }
 
 th {
@@ -124,25 +124,6 @@ td {
 
 td:nth-child(6) {
   font-weight:bold;
-}
-
-/* 🔄 LOADER (ONLY ADDITION) */
-.loader {
-  display:none;
-  justify-content:center;
-  align-items:center;
-  margin-top:30px;
-}
-
-.loader img {
-  width:60px;
-  height:60px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
 }
 
 @media (max-width:420px) {
@@ -184,11 +165,6 @@ td:nth-child(6) {
       <option value="">Select Container</option>
     </select>
 
-  </div>
-
-  <!-- 🔄 LOADER (ONLY ADDITION) -->
-  <div class="loader" id="loader">
-    <img src="https://i.imgur.com/llF5iyg.png" alt="Loading">
   </div>
 
   <div class="result-wrapper" id="resultBox">
