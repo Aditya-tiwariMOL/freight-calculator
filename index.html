@@ -46,7 +46,11 @@ h2 {
   margin:0 auto;
 }
 
-label { margin-top:15px; font-weight:bold; display:block; }
+label {
+  margin-top:15px;
+  font-weight:bold;
+  display:block;
+}
 
 input, select {
   width:100%;
@@ -76,6 +80,22 @@ input, select {
   background:#eaf4ff;
 }
 
+.loader {
+  display:none;
+  justify-content:center;
+  margin-top:25px;
+}
+.loader::after {
+  content:"";
+  width:50px;
+  height:50px;
+  border:6px solid #e3e3e3;
+  border-top-color:#1E74F0;
+  border-radius:50%;
+  animation:spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
 .result-wrapper {
   display:none;
   margin-top:25px;
@@ -83,78 +103,57 @@ input, select {
   padding:15px;
   border-radius:12px;
 }
-
-table {
-  width:100%;
-  border-collapse:collapse;
-}
-
-th {
-  background:#1E74F0;
-  color:white;
-  padding:10px;
-}
-td {
-  padding:10px;
-  border-bottom:1px solid #e2ecff;
-}
 </style>
 </head>
 
 <body>
-
 <div class="card">
 
-  <div style="text-align:center; margin-bottom:10px;">
-    <img src="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/MOL%20Logo%2001.png"
-         style="height:35px;">
-    <div class="logo-text">MOL Logistics (INDIA) PVT. LTD.</div>
-  </div>
+<div style="text-align:center; margin-bottom:10px;">
+  <img src="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/MOL%20Logo%2001.png" style="height:35px;">
+  <div class="logo-text">MOL Logistics (INDIA) PVT. LTD.</div>
+</div>
 
-  <h2>Freight Calculator</h2>
+<h2>Freight Calculator</h2>
 
-  <div class="input-box">
+<div class="input-box">
 
-    <label>POL</label>
-    <div style="position:relative;">
-      <input id="polInput" placeholder="Type POL...">
-      <div id="polList" class="suggestion-box"></div>
-    </div>
+<label>POL</label>
+<div style="position:relative;">
+  <input id="polInput" placeholder="Type POL...">
+  <div id="polList" class="suggestion-box"></div>
+</div>
 
-    <label>POD</label>
-    <div style="position:relative;">
-      <input id="podInput" placeholder="Type POD...">
-      <div id="podList" class="suggestion-box"></div>
-    </div>
+<label>POD</label>
+<div style="position:relative;">
+  <input id="podInput" placeholder="Type POD...">
+  <div id="podList" class="suggestion-box"></div>
+</div>
 
-    <label>Container</label>
-    <select id="container">
-      <option value="">Select Container</option>
-      <option>20GP</option>
-      <option>40GP</option>
-      <option>40GP/HC</option>
-    </select>
+<label>Container</label>
+<select id="container">
+  <option value="">Select Container</option>
+  <option value="20GP">20GP</option>
+  <option value="40GP">40GP</option>
+  <option value="40GP/HC">40GP/HC</option>
+</select>
 
-  </div>
+</div>
 
-  <div class="result-wrapper" id="resultBox">
-    <table>
-      <thead>
-        <tr>
-          <th>Line</th>
-          <th>Freight</th>
-          <th>BAF</th>
-          <th>Sur.</th>
-          <th>Local</th>
-          <th>Total</th>
-          <th>Remark</th>
-          <th>Route</th>
-          <th>Validity</th>
-        </tr>
-      </thead>
-      <tbody id="resultBody"></tbody>
-    </table>
-  </div>
+<div class="loader" id="loader"></div>
+
+<div class="result-wrapper" id="resultBox">
+  <table width="100%">
+    <thead>
+      <tr>
+        <th>Line</th><th>Freight</th><th>BAF</th>
+        <th>Sur.</th><th>Local</th><th>Total</th>
+        <th>Remark</th><th>Route</th><th>Validity</th>
+      </tr>
+    </thead>
+    <tbody id="resultBody"></tbody>
+  </table>
+</div>
 
 </div>
 
@@ -166,100 +165,86 @@ const podInput = document.getElementById("podInput");
 const container = document.getElementById("container");
 const polList = document.getElementById("polList");
 const podList = document.getElementById("podList");
+const loader = document.getElementById("loader");
 const resultBox = document.getElementById("resultBox");
 const resultBody = document.getElementById("resultBody");
 
-/* 🔥 SMART MATCH FUNCTION */
-function smartMatch(text, query) {
-  const t = text.toLowerCase();
-  const q = query.toLowerCase();
-
-  const tClean = t.replace(/\s+/g, "");
-  const qClean = q.replace(/\s+/g, "");
-
-  if (t.includes(q)) return true;
-  if (tClean.includes(qClean)) return true;
-
-  const tWords = t.split(" ");
-  return tWords.some(w => w.startsWith(q));
+/* 🔍 FUZZY MATCHER */
+function normalize(str) {
+  return str.toLowerCase().replace(/[^a-z0-9]/g,"");
+}
+function abbrev(str) {
+  return str.split(" ").map(w=>w[0]).join("").toLowerCase();
+}
+function fuzzyMatch(input, target) {
+  const a = normalize(input);
+  const b = normalize(target);
+  return (
+    b.includes(a) ||
+    abbrev(target).includes(a) ||
+    a.includes(abbrev(target))
+  );
 }
 
 /* TYPEAHEAD */
 function setupTypeAhead(input, box, items) {
   input.oninput = () => {
-    const q = input.value.trim();
-    if (!q) return box.style.display="none";
+    const t = input.value.trim();
+    if (!t) return box.style.display="none";
 
-    const matches = items.filter(x => smartMatch(x, q));
+    const matches = items.filter(x => fuzzyMatch(t, x));
+    if (!matches.length) return box.style.display="none";
 
-    if (!matches.length) {
-      box.style.display="none";
-      return;
-    }
-
-    box.innerHTML = matches.map(x => `<div>${x}</div>`).join("");
+    box.innerHTML = matches.map(x=>`<div>${x}</div>`).join("");
     box.style.display="block";
 
-    box.querySelectorAll("div").forEach(d => {
-      d.onmousedown = () => {
-        input.value = d.textContent;
+    box.querySelectorAll("div").forEach(d=>{
+      d.onmousedown=()=>{
+        input.value=d.textContent;
         box.style.display="none";
         input.dispatchEvent(new Event("change"));
       };
     });
   };
-
-  input.onblur = () => setTimeout(()=>box.style.display="none",150);
+  input.onblur=()=>setTimeout(()=>box.style.display="none",150);
 }
 
 /* LOAD POL */
-(async () => {
-  const pols = await fetch(API_URL + "?action=pol").then(r=>r.json());
+(async ()=>{
+  const pols = await fetch(API_URL+"?action=pol").then(r=>r.json());
   setupTypeAhead(polInput, polList, pols);
 })();
 
 /* LOAD POD */
-polInput.onchange = async () => {
+polInput.onchange = async ()=>{
   podInput.value="";
   resultBox.style.display="none";
-
-  const pods = await fetch(API_URL + "?action=pod&pol=" + encodeURIComponent(polInput.value))
-    .then(r=>r.json());
-
+  const pods = await fetch(API_URL+"?action=pod&pol="+encodeURIComponent(polInput.value)).then(r=>r.json());
   setupTypeAhead(podInput, podList, pods);
 
-  /* ✅ re-trigger if user already typed */
-  if (podInput.value.trim()) {
-    podInput.dispatchEvent(new Event("input"));
-  }
+  if (podInput.value) podInput.dispatchEvent(new Event("input"));
 };
 
 /* FINAL RESULT */
-container.onchange = async () => {
-  const rows = await fetch(
-    API_URL +
-    "?action=rates" +
-    "&pol=" + encodeURIComponent(polInput.value) +
-    "&pod=" + encodeURIComponent(podInput.value) +
-    "&container=" + encodeURIComponent(container.value)
+container.onchange = async ()=>{
+  if (!container.value) return;
+  loader.style.display="flex";
+  resultBox.style.display="none";
+
+  const rows = await fetch(API_URL+
+    "?action=rates&pol="+encodeURIComponent(polInput.value)+
+    "&pod="+encodeURIComponent(podInput.value)+
+    "&container="+encodeURIComponent(container.value)
   ).then(r=>r.json());
 
-  if (!rows.length) {
-    resultBox.style.display="none";
-    return;
-  }
+  loader.style.display="none";
+  if (!rows.length) return
 
-  resultBody.innerHTML = rows.map(r => `
+  resultBody.innerHTML = rows.map(r=>`
     <tr>
-      <td>${r.carrier}</td>
-      <td>${r.freight}</td>
-      <td>${r.obs}</td>
-      <td>${r.surcharges}</td>
-      <td>${r.local}</td>
-      <td>${r.total}</td>
-      <td>${r.remark}</td>
-      <td>${r.routing}</td>
-      <td>${r.validity}</td>
+      <td>${r.carrier}</td><td>${r.freight}</td><td>${r.obs}</td>
+      <td>${r.surcharges}</td><td>${r.local}</td><td>${r.total}</td>
+      <td>${r.remark}</td><td>${r.routing}</td><td>${r.validity}</td>
     </tr>
   `).join("");
 
