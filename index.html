@@ -8,7 +8,7 @@
 <style>
 *,
 *::before,
-*::after { box-sizing: border-box; }
+*::after { box-sizing:border-box; }
 
 body {
   margin:0;
@@ -28,14 +28,15 @@ body {
 
 .logo-text {
   text-align:center;
-  font-size:18px;
+  font-size:20px; /* +2px */
   font-weight:900;
   color:#164A9D;
 }
 
 h2 {
   text-align:center;
-  margin:10px 0 20px;
+  font-size:22px; /* +2px */
+  margin-bottom:20px;
 }
 
 .input-box {
@@ -44,12 +45,14 @@ h2 {
   padding:15px;
   max-width:450px;
   margin:0 auto;
+  display:flex;
+  flex-direction:column;
 }
 
 label {
   margin-top:15px;
   font-weight:bold;
-  display:block;
+  font-size:17px; /* +2px */
 }
 
 input, select {
@@ -58,6 +61,7 @@ input, select {
   margin-top:6px;
   border-radius:8px;
   border:1px solid #ccc;
+  font-size:17px; /* +2px */
 }
 
 .suggestion-box {
@@ -75,6 +79,7 @@ input, select {
 .suggestion-box div {
   padding:10px;
   cursor:pointer;
+  font-size:17px;
 }
 .suggestion-box div:hover {
   background:#eaf4ff;
@@ -103,57 +108,80 @@ input, select {
   padding:15px;
   border-radius:12px;
 }
+
+.table-wrapper { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; min-width:900px; }
+
+th {
+  background:#1E74F0;
+  color:white;
+  padding:10px;
+}
+td {
+  padding:10px;
+  border-bottom:1px solid #e2ecff;
+}
+td:nth-child(6) { font-weight:bold; }
 </style>
 </head>
 
 <body>
 <div class="card">
 
-<div style="text-align:center; margin-bottom:10px;">
-  <img src="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/MOL%20Logo%2001.png" style="height:35px;">
-  <div class="logo-text">MOL Logistics (INDIA) PVT. LTD.</div>
-</div>
+  <div style="text-align:center; margin-bottom:10px;">
+    <img src="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/MOL%20Logo%2001.png"
+         style="height:35px;">
+    <div class="logo-text">MOL Logistics (INDIA) PVT. LTD.</div>
+  </div>
 
-<h2>Freight Calculator</h2>
+  <h2>Freight Calculator</h2>
 
-<div class="input-box">
+  <div class="input-box">
 
-<label>POL</label>
-<div style="position:relative;">
-  <input id="polInput" placeholder="Type POL...">
-  <div id="polList" class="suggestion-box"></div>
-</div>
+    <label>POL</label>
+    <div style="position:relative;">
+      <input id="polInput" placeholder="Type POL...">
+      <div id="polList" class="suggestion-box"></div>
+    </div>
 
-<label>POD</label>
-<div style="position:relative;">
-  <input id="podInput" placeholder="Type POD...">
-  <div id="podList" class="suggestion-box"></div>
-</div>
+    <label>POD</label>
+    <div style="position:relative;">
+      <input id="podInput" placeholder="Type POD...">
+      <div id="podList" class="suggestion-box"></div>
+    </div>
 
-<label>Container</label>
-<select id="container">
-  <option value="">Select Container</option>
-  <option value="20GP">20GP</option>
-  <option value="40GP">40GP</option>
-  <option value="40GP/HC">40GP/HC</option>
-</select>
+    <label>Container</label>
+    <select id="container">
+      <option value="">Select Container</option>
+      <option value="20GP">20GP</option>
+      <option value="40GP">40GP</option>
+      <option value="40GP/HC">40GP/HC</option>
+    </select>
 
-</div>
+  </div>
 
-<div class="loader" id="loader"></div>
+  <div class="loader" id="loader"></div>
 
-<div class="result-wrapper" id="resultBox">
-  <table width="100%">
-    <thead>
-      <tr>
-        <th>Line</th><th>Freight</th><th>BAF</th>
-        <th>Sur.</th><th>Local</th><th>Total</th>
-        <th>Remark</th><th>Route</th><th>Validity</th>
-      </tr>
-    </thead>
-    <tbody id="resultBody"></tbody>
-  </table>
-</div>
+  <div class="result-wrapper" id="resultBox">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Line</th>
+            <th>Freight</th>
+            <th>BAF</th>
+            <th>Sur.</th>
+            <th>Local</th>
+            <th>Total</th>
+            <th>Remark</th>
+            <th>Route</th>
+            <th>Validity</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+    </div>
+  </div>
 
 </div>
 
@@ -165,86 +193,98 @@ const podInput = document.getElementById("podInput");
 const container = document.getElementById("container");
 const polList = document.getElementById("polList");
 const podList = document.getElementById("podList");
-const loader = document.getElementById("loader");
 const resultBox = document.getElementById("resultBox");
 const resultBody = document.getElementById("resultBody");
+const loader = document.getElementById("loader");
 
-/* 🔍 FUZZY MATCHER */
-function normalize(str) {
-  return str.toLowerCase().replace(/[^a-z0-9]/g,"");
-}
-function abbrev(str) {
-  return str.split(" ").map(w=>w[0]).join("").toLowerCase();
-}
-function fuzzyMatch(input, target) {
-  const a = normalize(input);
-  const b = normalize(target);
-  return (
-    b.includes(a) ||
-    abbrev(target).includes(a) ||
-    a.includes(abbrev(target))
-  );
-}
+/* 🔍 FUZZY MATCH HELPERS */
+const norm = s => s.toLowerCase().replace(/\s+/g,"");
+const score = (q, v) => {
+  if (!q) return 0;
+  if (v.includes(q)) return 3;
+  if (v.startsWith(q)) return 4;
+  let c=0; for (let ch of q) if (v.includes(ch)) c++;
+  return c;
+};
 
 /* TYPEAHEAD */
 function setupTypeAhead(input, box, items) {
   input.oninput = () => {
-    const t = input.value.trim();
-    if (!t) return box.style.display="none";
+    const q = norm(input.value);
+    if (!q) return box.style.display="none";
 
-    const matches = items.filter(x => fuzzyMatch(t, x));
-    if (!matches.length) return box.style.display="none";
+    const ranked = items
+      .map(v => ({ v, s: score(q, norm(v)) }))
+      .filter(x => x.s > 0)
+      .sort((a,b)=>b.s-a.s)
+      .map(x => x.v);
 
-    box.innerHTML = matches.map(x=>`<div>${x}</div>`).join("");
+    if (!ranked.length) return box.style.display="none";
+
+    box.innerHTML = ranked.map(x => `<div>${x}</div>`).join("");
     box.style.display="block";
 
-    box.querySelectorAll("div").forEach(d=>{
-      d.onmousedown=()=>{
-        input.value=d.textContent;
+    box.querySelectorAll("div").forEach(d => {
+      d.onmousedown = () => {
+        input.value = d.textContent;
         box.style.display="none";
         input.dispatchEvent(new Event("change"));
       };
     });
   };
-  input.onblur=()=>setTimeout(()=>box.style.display="none",150);
+  input.onblur = () => setTimeout(()=>box.style.display="none",150);
 }
 
 /* LOAD POL */
-(async ()=>{
-  const pols = await fetch(API_URL+"?action=pol").then(r=>r.json());
+(async () => {
+  const pols = await fetch(API_URL + "?action=pol").then(r=>r.json());
   setupTypeAhead(polInput, polList, pols);
 })();
 
 /* LOAD POD */
-polInput.onchange = async ()=>{
+polInput.onchange = async () => {
   podInput.value="";
+  container.value="";
   resultBox.style.display="none";
-  const pods = await fetch(API_URL+"?action=pod&pol="+encodeURIComponent(polInput.value)).then(r=>r.json());
+
+  const pods = await fetch(API_URL + "?action=pod&pol=" + encodeURIComponent(polInput.value))
+    .then(r=>r.json());
+
   setupTypeAhead(podInput, podList, pods);
 
-  if (podInput.value) podInput.dispatchEvent(new Event("input"));
+  if (podInput.value.trim()) {
+    podInput.dispatchEvent(new Event("input"));
+  }
 };
 
 /* FINAL RESULT */
-container.onchange = async ()=>{
+container.onchange = async () => {
   if (!container.value) return;
+
   loader.style.display="flex";
   resultBox.style.display="none";
 
-  const rows = await fetch(API_URL+
-    "?action=rates&pol="+encodeURIComponent(polInput.value)+
-    "&pod="+encodeURIComponent(podInput.value)+
-    "&container="+encodeURIComponent(container.value)
+  const rows = await fetch(
+    API_URL + "?action=rates" +
+    "&pol=" + encodeURIComponent(polInput.value) +
+    "&pod=" + encodeURIComponent(podInput.value) +
+    "&container=" + encodeURIComponent(container.value)
   ).then(r=>r.json());
 
   loader.style.display="none";
-  if (!rows.length) return
+  if (!rows.length) return;
 
-  resultBody.innerHTML = rows.map(r=>`
+  resultBody.innerHTML = rows.map(r => `
     <tr>
-      <td>${r.carrier}</td><td>${r.freight}</td><td>${r.obs}</td>
-      <td>${r.surcharges}</td><td>${r.local}</td><td>${r.total}</td>
-      <td>${r.remark}</td><td>${r.routing}</td><td>${r.validity}</td>
+      <td>${r.carrier}</td>
+      <td>${r.freight}</td>
+      <td>${r.obs}</td>
+      <td>${r.surcharges}</td>
+      <td>${r.local}</td>
+      <td>${r.total}</td>
+      <td>${r.remark}</td>
+      <td>${r.routing}</td>
+      <td>${r.validity}</td>
     </tr>
   `).join("");
 
