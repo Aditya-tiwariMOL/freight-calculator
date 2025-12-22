@@ -8,9 +8,7 @@
 <style>
 *,
 *::before,
-*::after {
-  box-sizing: border-box;
-}
+*::after { box-sizing: border-box; }
 
 body {
   margin:0;
@@ -19,7 +17,6 @@ body {
   padding:20px;
 }
 
-/* ---------- CARD ---------- */
 .card {
   background:white;
   max-width:900px;
@@ -42,21 +39,19 @@ h2 {
   margin:10px 0 20px;
 }
 
-/* ---------- INPUT BOX ---------- */
 .input-box {
   background:#fafafa;
   border-radius:12px;
   padding:15px;
   max-width:450px;
   margin:0 auto;
-  display:flex;
-  flex-direction:column;
 }
 
 label {
   margin-top:15px;
   font-weight:bold;
   font-size:16px; /* +1px */
+  display:block;
 }
 
 input, select {
@@ -68,7 +63,6 @@ input, select {
   font-size:16px; /* +1px */
 }
 
-/* ---------- TYPEAHEAD ---------- */
 .suggestion-box {
   display:none;
   position:absolute;
@@ -78,19 +72,17 @@ input, select {
   width:100%;
   max-height:180px;
   overflow-y:auto;
-  z-index:50;
+  z-index:100;
 }
 
 .suggestion-box div {
   padding:10px;
   cursor:pointer;
-  font-size:15px;
 }
 .suggestion-box div:hover {
   background:#eaf4ff;
 }
 
-/* ---------- LOADER ---------- */
 .loader {
   display:none;
   justify-content:center;
@@ -98,18 +90,15 @@ input, select {
 }
 .loader::after {
   content:"";
-  width:48px;
-  height:48px;
+  width:50px;
+  height:50px;
   border:6px solid #e3e3e3;
   border-top-color:#1E74F0;
   border-radius:50%;
   animation:spin 0.9s linear infinite;
 }
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* ---------- RESULT TABLE ---------- */
 .result-wrapper {
   display:none;
   margin-top:25px;
@@ -118,7 +107,6 @@ input, select {
   border-radius:12px;
 }
 
-/* THIS FIXES SCROLL */
 .table-wrapper {
   width:100%;
   overflow-x:auto;
@@ -126,37 +114,31 @@ input, select {
 
 table {
   width:100%;
-  min-width:900px;
   border-collapse:collapse;
+  min-width:900px;
+}
+
+th, td {
+  padding:10px;
+  border-bottom:1px solid #e2ecff;
+  text-align:left;
 }
 
 th {
   background:#1E74F0;
   color:white;
-  padding:10px;
-  text-align:left;
-  font-size:15px;
 }
 
-td {
-  padding:10px;
-  border-bottom:1px solid #e2ecff;
-  font-size:15px;
-}
-
-td:nth-child(6) {
-  font-weight:bold;
-}
+td:nth-child(6) { font-weight:bold; }
 </style>
 </head>
 
 <body>
-
 <div class="card">
 
   <div style="text-align:center; margin-bottom:10px;">
     <img src="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/MOL%20Logo%2001.png"
-         style="height:35px;">
+         style="height:35px; margin-bottom:5px;">
     <div class="logo-text">MOL Logistics (INDIA) PVT. LTD.</div>
   </div>
 
@@ -193,15 +175,9 @@ td:nth-child(6) {
       <table>
         <thead>
           <tr>
-            <th>Line</th>
-            <th>Freight</th>
-            <th>BAF</th>
-            <th>Sur.</th>
-            <th>Local</th>
-            <th>Total</th>
-            <th>Remark</th>
-            <th>Route</th>
-            <th>Validity</th>
+            <th>Line</th><th>Freight</th><th>BAF</th><th>Sur.</th>
+            <th>Local</th><th>Total</th><th>Remark</th>
+            <th>Route</th><th>Validity</th>
           </tr>
         </thead>
         <tbody id="resultBody"></tbody>
@@ -223,102 +199,67 @@ const loader = document.getElementById("loader");
 const resultBox = document.getElementById("resultBox");
 const resultBody = document.getElementById("resultBody");
 
-/* -------- FUZZY MATCH (FIXED) -------- */
+let suppressSuggestions = false;
+
 function normalize(s) {
-  return s.toLowerCase().replace(/[^a-z0-9]/g,"");
+  return s.toLowerCase().replace(/\s+/g,"");
 }
 
-function fuzzyFilter(list, query) {
+function smartFilter(items, query) {
   const q = normalize(query);
-  return list
-    .map(v => {
-      const n = normalize(v);
-      let score = 0;
-      if (n === q) score = 100;
-      else if (n.startsWith(q)) score = 80;
-      else if (n.includes(q)) score = 60;
-      return { v, score };
-    })
-    .filter(x => x.score > 0)
-    .sort((a,b) => b.score - a.score)
-    .map(x => x.v);
+  if (!q) return items;
+  return items.filter(it => {
+    const n = normalize(it);
+    return n.includes(q) || n.startsWith(q.slice(0,3));
+  });
 }
 
 function setupTypeAhead(input, box, items) {
   input.oninput = () => {
-    const val = input.value.trim();
-    if (!val) return box.style.display="none";
-
-    const matches = fuzzyFilter(items, val);
-    if (!matches.length) return box.style.display="none";
-
-    box.innerHTML = matches.map(x => `<div>${x}</div>`).join("");
+    if (suppressSuggestions) return;
+    const list = smartFilter(items, input.value);
+    if (!list.length) return box.style.display="none";
+    box.innerHTML = list.map(x=>`<div>${x}</div>`).join("");
     box.style.display="block";
-
-    box.querySelectorAll("div").forEach(d => {
-      d.onmousedown = () => {
+    box.querySelectorAll("div").forEach(d=>{
+      d.onmousedown = ()=>{
+        suppressSuggestions = true;
         input.value = d.textContent;
         box.style.display="none";
+        setTimeout(()=>suppressSuggestions=false,100);
         input.dispatchEvent(new Event("change"));
       };
     });
   };
-  input.onblur = () => setTimeout(()=>box.style.display="none",150);
+  input.onblur = ()=>setTimeout(()=>box.style.display="none",150);
 }
 
-/* LOAD POL */
-(async () => {
-  const pols = await fetch(API_URL + "?action=pol").then(r=>r.json());
+(async()=>{
+  const pols = await fetch(API_URL+"?action=pol").then(r=>r.json());
   setupTypeAhead(polInput, polList, pols);
 })();
 
-/* LOAD POD */
-polInput.onchange = async () => {
+polInput.onchange = async ()=>{
   podInput.value="";
   container.value="";
   resultBox.style.display="none";
-
-  const pods = await fetch(API_URL + "?action=pod&pol=" + encodeURIComponent(polInput.value))
-    .then(r=>r.json());
-
+  const pods = await fetch(API_URL+"?action=pod&pol="+encodeURIComponent(polInput.value)).then(r=>r.json());
   setupTypeAhead(podInput, podList, pods);
-
-  if (podInput.value) {
-    podInput.dispatchEvent(new Event("input"));
-  }
 };
 
-/* FINAL RESULT */
-container.onchange = async () => {
+container.onchange = async ()=>{
   if (!container.value) return;
-
   loader.style.display="flex";
   resultBox.style.display="none";
-
-  const rows = await fetch(
-    API_URL + "?action=rates" +
-    "&pol=" + encodeURIComponent(polInput.value) +
-    "&pod=" + encodeURIComponent(podInput.value) +
-    "&container=" + encodeURIComponent(container.value)
-  ).then(r=>r.json());
-
+  const rows = await fetch(API_URL+"?action=rates&pol="+encodeURIComponent(polInput.value)+"&pod="+encodeURIComponent(podInput.value)+"&container="+encodeURIComponent(container.value)).then(r=>r.json());
   loader.style.display="none";
   if (!rows.length) return;
-
-  resultBody.innerHTML = rows.map(r => `
+  resultBody.innerHTML = rows.map(r=>`
     <tr>
-      <td>${r.carrier}</td>
-      <td>${r.freight}</td>
-      <td>${r.obs}</td>
-      <td>${r.surcharges}</td>
-      <td>${r.local}</td>
-      <td>${r.total}</td>
-      <td>${r.remark}</td>
-      <td>${r.routing}</td>
-      <td>${r.validity}</td>
-    </tr>
-  `).join("");
-
+      <td>${r.carrier}</td><td>${r.freight}</td><td>${r.obs}</td>
+      <td>${r.surcharges}</td><td>${r.local}</td><td>${r.total}</td>
+      <td>${r.remark}</td><td>${r.routing}</td><td>${r.validity}</td>
+    </tr>`).join("");
   resultBox.style.display="block";
 };
 </script>
