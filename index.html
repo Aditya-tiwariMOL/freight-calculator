@@ -8,7 +8,9 @@
 <style>
 *,
 *::before,
-*::after { box-sizing:border-box; }
+*::after {
+  box-sizing: border-box;
+}
 
 body {
   margin:0;
@@ -17,6 +19,7 @@ body {
   padding:20px;
 }
 
+/* ---------- CARD ---------- */
 .card {
   background:white;
   max-width:900px;
@@ -28,29 +31,32 @@ body {
 
 .logo-text {
   text-align:center;
-  font-size:17px;
+  font-size:19px; /* +1px */
   font-weight:900;
   color:#164A9D;
 }
 
 h2 {
   text-align:center;
-  font-size:19px;
+  font-size:21px; /* +1px */
   margin:10px 0 20px;
 }
 
+/* ---------- INPUT BOX ---------- */
 .input-box {
   background:#fafafa;
   border-radius:12px;
   padding:15px;
   max-width:450px;
   margin:0 auto;
+  display:flex;
+  flex-direction:column;
 }
 
 label {
   margin-top:15px;
   font-weight:bold;
-  font-size:15px; /* +1px */
+  font-size:16px; /* +1px */
 }
 
 input, select {
@@ -62,6 +68,7 @@ input, select {
   font-size:16px; /* +1px */
 }
 
+/* ---------- TYPEAHEAD ---------- */
 .suggestion-box {
   display:none;
   position:absolute;
@@ -77,31 +84,32 @@ input, select {
 .suggestion-box div {
   padding:10px;
   cursor:pointer;
-  font-size:16px; /* +1px */
+  font-size:15px;
 }
-
 .suggestion-box div:hover {
   background:#eaf4ff;
 }
 
+/* ---------- LOADER ---------- */
 .loader {
   display:none;
   justify-content:center;
   margin-top:25px;
 }
-
 .loader::after {
   content:"";
-  width:50px;
-  height:50px;
+  width:48px;
+  height:48px;
   border:6px solid #e3e3e3;
   border-top-color:#1E74F0;
   border-radius:50%;
   animation:spin 0.9s linear infinite;
 }
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
-@keyframes spin { to { transform:rotate(360deg); } }
-
+/* ---------- RESULT TABLE ---------- */
 .result-wrapper {
   display:none;
   margin-top:25px;
@@ -109,56 +117,97 @@ input, select {
   padding:15px;
   border-radius:12px;
 }
+
+/* THIS FIXES SCROLL */
+.table-wrapper {
+  width:100%;
+  overflow-x:auto;
+}
+
+table {
+  width:100%;
+  min-width:900px;
+  border-collapse:collapse;
+}
+
+th {
+  background:#1E74F0;
+  color:white;
+  padding:10px;
+  text-align:left;
+  font-size:15px;
+}
+
+td {
+  padding:10px;
+  border-bottom:1px solid #e2ecff;
+  font-size:15px;
+}
+
+td:nth-child(6) {
+  font-weight:bold;
+}
 </style>
 </head>
 
 <body>
+
 <div class="card">
 
-<div style="text-align:center;margin-bottom:10px;">
-  <img src="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/MOL%20Logo%2001.png" style="height:35px;">
-  <div class="logo-text">MOL Logistics (INDIA) PVT. LTD.</div>
-</div>
+  <div style="text-align:center; margin-bottom:10px;">
+    <img src="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/MOL%20Logo%2001.png"
+         style="height:35px;">
+    <div class="logo-text">MOL Logistics (INDIA) PVT. LTD.</div>
+  </div>
 
-<h2>Freight Calculator</h2>
+  <h2>Freight Calculator</h2>
 
-<div class="input-box">
+  <div class="input-box">
 
-<label>POL</label>
-<div style="position:relative;">
-  <input id="polInput" placeholder="Type POL">
-  <div id="polList" class="suggestion-box"></div>
-</div>
+    <label>POL</label>
+    <div style="position:relative;">
+      <input id="polInput" placeholder="Type POL...">
+      <div id="polList" class="suggestion-box"></div>
+    </div>
 
-<label>POD</label>
-<div style="position:relative;">
-  <input id="podInput" placeholder="Type POD">
-  <div id="podList" class="suggestion-box"></div>
-</div>
+    <label>POD</label>
+    <div style="position:relative;">
+      <input id="podInput" placeholder="Type POD...">
+      <div id="podList" class="suggestion-box"></div>
+    </div>
 
-<label>Container</label>
-<select id="container">
-  <option value="">Select Container</option>
-  <option>20GP</option>
-  <option>40GP</option>
-  <option>40GP/HC</option>
-</select>
+    <label>Container</label>
+    <select id="container">
+      <option value="">Select Container</option>
+      <option>20GP</option>
+      <option>40GP</option>
+      <option>40GP/HC</option>
+    </select>
 
-</div>
+  </div>
 
-<div class="loader" id="loader"></div>
+  <div class="loader" id="loader"></div>
 
-<div class="result-wrapper" id="resultBox">
-  <table width="100%">
-    <thead>
-      <tr>
-        <th>Line</th><th>Freight</th><th>BAF</th><th>Sur.</th>
-        <th>Local</th><th>Total</th><th>Remark</th><th>Route</th><th>Validity</th>
-      </tr>
-    </thead>
-    <tbody id="resultBody"></tbody>
-  </table>
-</div>
+  <div class="result-wrapper" id="resultBox">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Line</th>
+            <th>Freight</th>
+            <th>BAF</th>
+            <th>Sur.</th>
+            <th>Local</th>
+            <th>Total</th>
+            <th>Remark</th>
+            <th>Route</th>
+            <th>Validity</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+    </div>
+  </div>
 
 </div>
 
@@ -174,44 +223,33 @@ const loader = document.getElementById("loader");
 const resultBox = document.getElementById("resultBox");
 const resultBody = document.getElementById("resultBody");
 
-/* ---------- FUZZY MATCH ---------- */
+/* -------- FUZZY MATCH (FIXED) -------- */
 function normalize(s) {
   return s.toLowerCase().replace(/[^a-z0-9]/g,"");
 }
 
-function fuzzySort(items, input) {
-  const nInput = normalize(input);
-
-  return items
-    .map(item => {
-      const nItem = normalize(item);
+function fuzzyFilter(list, query) {
+  const q = normalize(query);
+  return list
+    .map(v => {
+      const n = normalize(v);
       let score = 0;
-
-      if (nItem === nInput) score += 100;
-      else if (nItem.startsWith(nInput)) score += 70;
-      else if (nItem.includes(nInput)) score += 40;
-
-      // loose character match
-      let matchCount = 0;
-      for (let c of nInput) {
-        if (nItem.includes(c)) matchCount++;
-      }
-      score += matchCount;
-
-      return { item, score };
+      if (n === q) score = 100;
+      else if (n.startsWith(q)) score = 80;
+      else if (n.includes(q)) score = 60;
+      return { v, score };
     })
     .filter(x => x.score > 0)
     .sort((a,b) => b.score - a.score)
-    .map(x => x.item);
+    .map(x => x.v);
 }
 
-/* ---------- TYPEAHEAD ---------- */
 function setupTypeAhead(input, box, items) {
   input.oninput = () => {
     const val = input.value.trim();
     if (!val) return box.style.display="none";
 
-    const matches = fuzzySort(items, val);
+    const matches = fuzzyFilter(items, val);
     if (!matches.length) return box.style.display="none";
 
     box.innerHTML = matches.map(x => `<div>${x}</div>`).join("");
@@ -225,13 +263,12 @@ function setupTypeAhead(input, box, items) {
       };
     });
   };
-
   input.onblur = () => setTimeout(()=>box.style.display="none",150);
 }
 
 /* LOAD POL */
-(async()=>{
-  const pols = await fetch(API_URL+"?action=pol").then(r=>r.json());
+(async () => {
+  const pols = await fetch(API_URL + "?action=pol").then(r=>r.json());
   setupTypeAhead(polInput, polList, pols);
 })();
 
@@ -241,12 +278,14 @@ polInput.onchange = async () => {
   container.value="";
   resultBox.style.display="none";
 
-  const pods = await fetch(API_URL+"?action=pod&pol="+encodeURIComponent(polInput.value))
+  const pods = await fetch(API_URL + "?action=pod&pol=" + encodeURIComponent(polInput.value))
     .then(r=>r.json());
 
   setupTypeAhead(podInput, podList, pods);
 
-  if (podInput.value) podInput.dispatchEvent(new Event("input"));
+  if (podInput.value) {
+    podInput.dispatchEvent(new Event("input"));
+  }
 };
 
 /* FINAL RESULT */
@@ -257,16 +296,16 @@ container.onchange = async () => {
   resultBox.style.display="none";
 
   const rows = await fetch(
-    API_URL+"?action=rates"+
-    "&pol="+encodeURIComponent(polInput.value)+
-    "&pod="+encodeURIComponent(podInput.value)+
-    "&container="+encodeURIComponent(container.value)
+    API_URL + "?action=rates" +
+    "&pol=" + encodeURIComponent(polInput.value) +
+    "&pod=" + encodeURIComponent(podInput.value) +
+    "&container=" + encodeURIComponent(container.value)
   ).then(r=>r.json());
 
   loader.style.display="none";
   if (!rows.length) return;
 
-  resultBody.innerHTML = rows.map(r=>`
+  resultBody.innerHTML = rows.map(r => `
     <tr>
       <td>${r.carrier}</td>
       <td>${r.freight}</td>
@@ -277,7 +316,8 @@ container.onchange = async () => {
       <td>${r.remark}</td>
       <td>${r.routing}</td>
       <td>${r.validity}</td>
-    </tr>`).join("");
+    </tr>
+  `).join("");
 
   resultBox.style.display="block";
 };
