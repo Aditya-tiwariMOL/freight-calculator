@@ -177,6 +177,9 @@ td:nth-child(6) {
     <label>Container</label>
     <select id="container">
       <option value="">Select Container</option>
+      <option value="20GP">20GP</option>
+      <option value="40GP">40GP</option>
+      <option value="40HC">40HC</option>
     </select>
 
   </div>
@@ -247,7 +250,7 @@ function setupTypeAhead(input, box, items) {
 /* LOAD POD */
 polInput.onchange = async () => {
   podInput.value="";
-  container.innerHTML='<option value="">Select Container</option>';
+  container.value="";
   resultBox.style.display="none";
 
   const pods = await fetch(API_URL + "?action=pod&pol=" + encodeURIComponent(polInput.value))
@@ -256,19 +259,10 @@ polInput.onchange = async () => {
   setupTypeAhead(podInput, podList, pods);
 };
 
-/* LOAD CONTAINER */
-podInput.onchange = async () => {
-  const cons = await fetch(
-    API_URL + "?action=container&pol=" + encodeURIComponent(polInput.value) +
-    "&pod=" + encodeURIComponent(podInput.value)
-  ).then(r=>r.json());
-
-  container.innerHTML='<option value="">Select Container</option>';
-  cons.forEach(c => container.innerHTML += `<option>${c}</option>`);
-};
-
 /* FINAL RESULT */
 container.onchange = async () => {
+  if (!container.value) return;
+
   loader.style.display="flex";
   resultBox.style.display="none";
 
