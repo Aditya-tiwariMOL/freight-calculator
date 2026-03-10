@@ -167,7 +167,19 @@ td:nth-child(6) { font-weight:bold; }
       <option>20GP</option>
       <option>40GP/HC</option>
     </select>
-
+<div style="margin-top:20px;text-align:center;">
+  <button id="createEnquiryBtn" style="
+    background:#ff6a00;
+    color:white;
+    border:none;
+    padding:12px;
+    border-radius:8px;
+    font-weight:bold;
+    cursor:pointer;
+    width:100%;">
+    Create Enquiry
+  </button>
+</div>
   </div>
 
   <div class="loader" id="loader"></div>
@@ -200,7 +212,47 @@ const podList = document.getElementById("podList");
 const loader = document.getElementById("loader");
 const resultBox = document.getElementById("resultBox");
 const resultBody = document.getElementById("resultBody");
+document.getElementById("createEnquiryBtn").onclick = () => {
 
+document.getElementById("enqPol").value = polInput.value;
+document.getElementById("enqPod").value = podInput.value;
+document.getElementById("enqContainer").value = container.value;
+
+document.getElementById("enquiryPopup").style.display="flex";
+
+};
+
+function closePopup(){
+document.getElementById("enquiryPopup").style.display="none";
+}
+
+function submitEnquiry(){
+
+const pol = document.getElementById("enqPol").value;
+const pod = document.getElementById("enqPod").value;
+const containerVal = document.getElementById("enqContainer").value;
+const lead = document.getElementById("leadStatus").value;
+const deadline = document.getElementById("deadline").value;
+const sales = document.getElementById("salesPic").value;
+
+fetch(API_URL+
+"?action=createEnquiry"+
+"&pol="+encodeURIComponent(pol)+
+"&pod="+encodeURIComponent(pod)+
+"&container="+encodeURIComponent(containerVal)+
+"&lead="+encodeURIComponent(lead)+
+"&deadline="+encodeURIComponent(deadline)+
+"&sales="+encodeURIComponent(sales)
+)
+.then(r=>r.json())
+.then(res=>{
+alert("Enquiry Created: "+res.id);
+document.getElementById("deadline").value="";
+document.getElementById("leadStatus").value="Hot";
+closePopup();
+});
+
+}
 let suppressSuggestions = false;
 
 function normalize(s) {
@@ -265,6 +317,65 @@ container.onchange = async ()=>{
   resultBox.style.display="block";
 };
 </script>
+<div id="enquiryPopup" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:rgba(0,0,0,0.4);
+justify-content:center;
+align-items:center;
+z-index:1000;
+">
 
+<div style="
+background:white;
+padding:20px;
+border-radius:10px;
+width:350px;
+">
+
+<h3>Create Enquiry</h3>
+
+<label>POL</label>
+<input id="enqPol">
+
+<label>POD</label>
+<input id="enqPod">
+
+<label>Container</label>
+<select id="enqContainer">
+<option>20GP</option>
+<option>40GP/HC</option>
+</select>
+
+<label>Lead Status</label>
+<select id="leadStatus">
+<option>Hot</option>
+<option>Warm</option>
+<option>Cold</option>
+</select>
+
+<label>Deadline</label>
+<input type="datetime-local" id="deadline">
+
+<label>Sales PIC</label>
+<select id="salesPic">
+<option>Aditya T</option>
+<option>Abhishek J</option>
+<option>Prashant D</option>
+<option>Shubham T</option>
+<option>Kaustubh K</option>
+</select>
+
+<div style="margin-top:15px;text-align:right;">
+<button onclick="closePopup()">Cancel</button>
+<button onclick="submitEnquiry()">Submit</button>
+</div>
+
+</div>
+</div>
 </body>
 </html>
