@@ -439,16 +439,14 @@ async function loadEnquiries(){
 
 document.getElementById("enquirySection").style.display="block";
 
-/* show loader */
-document.getElementById("enquiryLoader").style.display="block";
-document.getElementById("enquiryTable").innerHTML="";
+/* show loader row */
+document.getElementById("enquiryLoaderRow").style.display="table-row";
+document.getElementById("enquiryTable").innerHTML =
+document.getElementById("enquiryLoaderRow").outerHTML;
 
 /* fetch enquiries */
 const rows = await fetch(API_URL+"?action=getenquiries")
 .then(r=>r.json());
-
-/* hide loader */
-document.getElementById("enquiryLoader").style.display="none";
 
 /* render table */
 document.getElementById("enquiryTable").innerHTML =
