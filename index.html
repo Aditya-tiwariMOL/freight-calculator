@@ -249,7 +249,21 @@ box-shadow:0 4px 12px rgba(0,0,0,0.08);
 ">
 
 <h3 style="margin-bottom:15px;">Enquiry Dashboard</h3>
-
+<div id="enquiryLoader" style="
+display:none;
+text-align:center;
+padding:15px;
+">
+<div style="
+width:28px;
+height:28px;
+border:4px solid #e3e3e3;
+border-top-color:#164A9D;
+border-radius:50%;
+animation:spin 0.8s linear infinite;
+margin:auto;
+"></div>
+</div>
 <div style="overflow-x:auto;">
 <table style="width:100%;border-collapse:collapse;">
 
@@ -421,6 +435,18 @@ container.onchange = async ()=>{
   resultBox.style.display="block";
 };
 async function loadEnquiries(){
+
+document.getElementById("enquirySection").style.display="block";
+
+/* show loader */
+document.getElementById("enquiryLoader").style.display="block";
+document.getElementById("enquiryTable").innerHTML="";
+
+const rows = await fetch(API_URL+"?action=getenquiries")
+.then(r=>r.json());
+
+/* hide loader */
+document.getElementById("enquiryLoader").style.display="none";
 
 document.getElementById("enquirySection").style.display="block";
 
