@@ -299,7 +299,15 @@ function closePopup(){
 document.getElementById("enquiryPopup").style.display="none";
 }
 
-function submitEnquiry(){
+async function submitEnquiry(){
+
+const btn = document.getElementById("submitBtn");
+
+/* prevent double click */
+if(btn.disabled) return;
+
+btn.disabled = true;
+btn.innerText = "Submitting...";
 
 const pol = document.getElementById("enqPol").value;
 const pod = document.getElementById("enqPod").value;
@@ -308,7 +316,9 @@ const lead = document.getElementById("leadStatus").value;
 const deadline = document.getElementById("deadline").value;
 const sales = document.getElementById("salesPic").value;
 
-fetch(API_URL+
+try{
+
+const res = await fetch(API_URL+
 "?action=createEnquiry"+
 "&pol="+encodeURIComponent(pol)+
 "&pod="+encodeURIComponent(pod)+
@@ -316,14 +326,35 @@ fetch(API_URL+
 "&lead="+encodeURIComponent(lead)+
 "&deadline="+encodeURIComponent(deadline)+
 "&sales="+encodeURIComponent(sales)
-)
-.then(r=>r.json())
-.then(res=>{
-alert("Enquiry Created: "+res.id);
+);
+
+const data = await res.json();
+
+btn.innerText = "Submitted ✓";
+
+setTimeout(()=>{
+
+alert("Enquiry Created: "+data.id);
+
 document.getElementById("deadline").value="";
 document.getElementById("leadStatus").value="Hot";
+
 closePopup();
-});
+
+btn.disabled=false;
+btn.innerText="Submit";
+
+},800);
+
+}
+catch(err){
+
+alert("Error submitting enquiry");
+
+btn.disabled=false;
+btn.innerText="Submit";
+
+}
 
 }
 let suppressSuggestions = false;
@@ -488,7 +519,7 @@ font-weight:500;
 Cancel
 </button>
 
-<button onclick="submitEnquiry()" style="
+<button id="submitBtn" onclick="submitEnquiry()" style="
 padding:10px 18px;
 border-radius:8px;
 border:none;
