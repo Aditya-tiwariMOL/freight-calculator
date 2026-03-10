@@ -167,19 +167,6 @@ td:nth-child(6) { font-weight:bold; }
       <option>20GP</option>
       <option>40GP/HC</option>
     </select>
-<div style="margin-top:20px;text-align:center;">
-  <button id="createEnquiryBtn" style="
-    background:#ff6a00;
-    color:white;
-    border:none;
-    padding:12px;
-    border-radius:8px;
-    font-weight:bold;
-    cursor:pointer;
-    width:100%;">
-    Create Enquiry
-  </button>
-</div>
   </div>
 
   <div class="loader" id="loader"></div>
@@ -200,7 +187,31 @@ td:nth-child(6) { font-weight:bold; }
   </div>
 
 </div>
+<div style="margin-top:30px;text-align:center;display:flex;gap:15px;justify-content:center;flex-wrap:wrap;">
 
+<button id="createEnquiryBtn" style="
+background:#ff6a00;
+color:white;
+border:none;
+padding:12px 20px;
+border-radius:8px;
+font-weight:bold;
+cursor:pointer;">
+Create Enquiry
+</button>
+
+<button id="openEnquirySheet" style="
+background:#164A9D;
+color:white;
+border:none;
+padding:12px 20px;
+border-radius:8px;
+font-weight:bold;
+cursor:pointer;">
+Enquiry Sheet
+</button>
+
+</div>
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
 
@@ -212,6 +223,15 @@ const podList = document.getElementById("podList");
 const loader = document.getElementById("loader");
 const resultBox = document.getElementById("resultBox");
 const resultBody = document.getElementById("resultBody");
+/* OPEN ENQUIRY SHEET BUTTON */
+document.getElementById("openEnquirySheet").onclick = () => {
+
+window.open(
+"https://docs.google.com/spreadsheets/d/1Y14XtxZ9PZkxRRqtexV_6oOyFUBXwhfH57DEzxbOJUY/edit?gid=921806975#gid=921806975",
+"_blank"
+);
+
+};
 document.getElementById("createEnquiryBtn").onclick = () => {
 
 document.getElementById("enqPol").value = polInput.value;
