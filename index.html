@@ -212,6 +212,39 @@ Enquiry Sheet
 </button>
 
 </div>
+<div id="enquirySection" style="
+display:none;
+margin-top:30px;
+background:white;
+padding:15px;
+border-radius:10px;
+box-shadow:0 4px 12px rgba(0,0,0,0.08);
+">
+
+<h3 style="margin-bottom:15px;">Enquiry Dashboard</h3>
+
+<div style="overflow-x:auto;">
+<table style="width:100%;border-collapse:collapse;">
+
+<thead>
+<tr style="background:#164A9D;color:white;">
+<th style="padding:10px;">Lead</th>
+<th>POL</th>
+<th>POD</th>
+<th>Container</th>
+<th>Deadline</th>
+<th>Sales</th>
+<th>Price</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="enquiryTable"></tbody>
+
+</table>
+</div>
+
+</div>
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
 
@@ -224,14 +257,7 @@ const loader = document.getElementById("loader");
 const resultBox = document.getElementById("resultBox");
 const resultBody = document.getElementById("resultBody");
 /* OPEN ENQUIRY SHEET BUTTON */
-document.getElementById("openEnquirySheet").onclick = () => {
-
-window.open(
-"https://docs.google.com/spreadsheets/d/1Y14XtxZ9PZkxRRqtexV_6oOyFUBXwhfH57DEzxbOJUY/edit?gid=921806975#gid=921806975",
-"_blank"
-);
-
-};
+document.getElementById("openEnquirySheet").onclick = loadEnquiries;
 document.getElementById("createEnquiryBtn").onclick = () => {
 
 document.getElementById("enqPol").value = polInput.value;
@@ -336,6 +362,28 @@ container.onchange = async ()=>{
     </tr>`).join("");
   resultBox.style.display="block";
 };
+async function loadEnquiries(){
+
+document.getElementById("enquirySection").style.display="block";
+
+const rows = await fetch(API_URL+"?action=getenquiries")
+.then(r=>r.json());
+
+document.getElementById("enquiryTable").innerHTML =
+rows.map(r=>`
+<tr>
+<td>${r.lead}</td>
+<td>${r.pol}</td>
+<td>${r.pod}</td>
+<td>${r.container}</td>
+<td>${r.deadline}</td>
+<td>${r.sales}</td>
+<td>${r.price || ""}</td>
+<td>${r.status}</td>
+</tr>
+`).join("");
+
+}
 </script>
 <div id="enquiryPopup" style="
 display:none;
