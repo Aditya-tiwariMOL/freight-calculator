@@ -164,18 +164,6 @@ font-size:20px;
 </head>
 
 <body>
-<button id="toggleCalc" style="
-display:block;
-margin:0 auto 15px auto;
-background:#164A9D;
-color:white;
-border:none;
-padding:10px 16px;
-border-radius:8px;
-font-weight:600;
-cursor:pointer;">
-Hide Calculator ▲
-</button>
 <div id="calculatorSection">
 <div class="card">
 
@@ -226,6 +214,16 @@ Hide Calculator ▲
     </div>
   </div>
 
+</div>
+<div id="toggleCalc" style="
+text-align:center;
+margin:18px auto;
+cursor:pointer;
+font-size:20px;
+color:#777;
+user-select:none;
+">
+──────── ⌄ ────────
 </div>
 <div style="margin-top:30px;text-align:center;display:flex;gap:15px;justify-content:center;flex-wrap:wrap;">
 
@@ -476,12 +474,12 @@ toggleBtn.onclick = function(){
 if(calcSection.style.display === "none"){
 
 calcSection.style.display = "block";
-toggleBtn.innerText = "Hide Calculator ▲";
+toggleBtn.innerHTML = "──────── ⌄ ────────";
 
 }else{
 
 calcSection.style.display = "none";
-toggleBtn.innerText = "Show Calculator ▼";
+toggleBtn.innerHTML = "──────── ⌃ ────────";
 
 }
 
