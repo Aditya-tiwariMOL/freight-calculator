@@ -164,6 +164,19 @@ font-size:20px;
 </head>
 
 <body>
+<button id="toggleCalc" style="
+display:block;
+margin:0 auto 15px auto;
+background:#164A9D;
+color:white;
+border:none;
+padding:10px 16px;
+border-radius:8px;
+font-weight:600;
+cursor:pointer;">
+Hide Calculator ▲
+</button>
+<div id="calculatorSection">
 <div class="card">
 
   <div style="text-align:center; margin-bottom:10px;">
@@ -455,6 +468,24 @@ rows.map(r=>`
 `).join("");
 
 }
+const toggleBtn = document.getElementById("toggleCalc");
+const calcSection = document.getElementById("calculatorSection");
+
+toggleBtn.onclick = function(){
+
+if(calcSection.style.display === "none"){
+
+calcSection.style.display = "block";
+toggleBtn.innerText = "Hide Calculator ▲";
+
+}else{
+
+calcSection.style.display = "none";
+toggleBtn.innerText = "Show Calculator ▼";
+
+}
+
+};
 </script>
 <div id="enquiryPopup" style="
 display:none;
