@@ -339,7 +339,8 @@ const containerVal = document.getElementById("enqContainer").value;
 const lead = document.getElementById("leadStatus").value;
 const deadline = document.getElementById("deadline").value;
 const sales = document.getElementById("salesPic").value;
-
+const volume = document.getElementById("volume").value;
+const remarks = document.getElementById("remarks").value;
 try{
 
 const res = await fetch(API_URL+
@@ -350,6 +351,8 @@ const res = await fetch(API_URL+
 "&lead="+encodeURIComponent(lead)+
 "&deadline="+encodeURIComponent(deadline)+
 "&sales="+encodeURIComponent(sales)
+"&volume="+encodeURIComponent(volume)+
+"&remarks="+encodeURIComponent(remarks)
 );
 
 const data = await res.json();
@@ -548,6 +551,12 @@ box-shadow:0 10px 40px rgba(0,0,0,0.25);
 <option>Kaustubh K</option>
 </select>
 
+<label>Volume (CBM)</label>
+<input id="volume" placeholder="Enter Volume">
+
+<label>Remarks</label>
+<input id="remarks" placeholder="Enter Remarks">
+        
 <div style="
 margin-top:22px;
 display:flex;
