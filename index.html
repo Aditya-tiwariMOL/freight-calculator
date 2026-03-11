@@ -4,597 +4,334 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Freight Calculator</title>
+
 <link rel="icon" type="image/png"
-        href="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/Freight%20Calculator.png">
-  <link rel="apple-touch-icon"
-        href="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/Freight%20Calculator.png">
+href="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/Freight%20Calculator.png">
+
+<link rel="apple-touch-icon"
+href="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/Freight%20Calculator.png">
+
 <style>
+
 *,
 *::before,
 *::after { box-sizing: border-box; }
 
-body {
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#f4f4f4;
-  padding:20px;
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:#f4f4f4;
+padding:20px;
 }
 
-.card {
-  background:white;
-  max-width:900px;
-  margin:0 auto;
-  padding:20px;
-  border-radius:14px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.12);
+.card{
+background:white;
+max-width:900px;
+margin:0 auto;
+padding:20px;
+border-radius:14px;
+box-shadow:0 4px 20px rgba(0,0,0,0.12);
 }
 
-.logo-text {
-  text-align:center;
-  font-size:19px; /* +1px */
-  font-weight:900;
-  color:#164A9D;
+.logo-text{
+text-align:center;
+font-size:19px;
+font-weight:900;
+color:#164A9D;
 }
 
-h2 {
-  text-align:center;
-  font-size:21px; /* +1px */
-  margin:10px 0 20px;
+h2{
+text-align:center;
+font-size:21px;
+margin:10px 0 20px;
 }
 
-.input-box {
-  background:#fafafa;
-  border-radius:12px;
-  padding:15px;
-  max-width:450px;
-  margin:0 auto;
+.input-box{
+background:#fafafa;
+border-radius:12px;
+padding:15px;
+max-width:450px;
+margin:0 auto;
 }
 
-label {
-  margin-top:15px;
-  font-weight:bold;
-  font-size:16px; /* +1px */
-  display:block;
+label{
+margin-top:15px;
+font-weight:bold;
+font-size:16px;
+display:block;
 }
 
-input, select {
-  width:100%;
-  padding:12px;
-  margin-top:6px;
-  border-radius:8px;
-  border:1px solid #ccc;
-  font-size:16px; /* +1px */
-}
-
-.suggestion-box {
-  display:none;
-  position:absolute;
-  background:white;
-  border:1px solid #ccc;
-  border-radius:8px;
-  width:100%;
-  max-height:180px;
-  overflow-y:auto;
-  z-index:100;
-}
-
-.suggestion-box div {
-  padding:10px;
-  cursor:pointer;
-}
-.suggestion-box div:hover {
-  background:#eaf4ff;
-}
-
-.loader {
-  display:none;
-  justify-content:center;
-  margin-top:25px;
-}
-.loader::after {
-  content:"";
-  width:50px;
-  height:50px;
-  border:6px solid #e3e3e3;
-  border-top-color:#1E74F0;
-  border-radius:50%;
-  animation:spin 0.9s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.result-wrapper {
-  display:none;
-  margin-top:25px;
-  background:#f7fbff;
-  padding:15px;
-  border-radius:12px;
-}
-
-.table-wrapper {
-  width:100%;
-  overflow-x:auto;
-}
-
-table {
-  width:100%;
-  border-collapse:collapse;
-  min-width:900px;
-}
-
-th, td {
-  padding:10px;
-  border-bottom:1px solid #e2ecff;
-  text-align:left;
-}
-
-th {
-  background:#1E74F0;
-  color:white;
-}
-
-td:nth-child(6) { font-weight:bold; }
-.popup-form label{
-margin-top:14px;
-font-weight:600;
-font-size:15px;
-}
-
-.popup-form input,
-.popup-form select{
+input,select{
 width:100%;
 padding:12px;
 margin-top:6px;
-border-radius:10px;
-border:1px solid #d5d5d5;
-font-size:15px;
-}
-@media (max-width:600px){
-
-.popup-form{
-padding:20px !important;
-border-radius:14px !important;
+border-radius:8px;
+border:1px solid #ccc;
+font-size:16px;
 }
 
-.popup-form h3{
-font-size:20px;
+.suggestion-box{
+display:none;
+position:absolute;
+background:white;
+border:1px solid #ccc;
+border-radius:8px;
+width:100%;
+max-height:180px;
+overflow-y:auto;
+z-index:100;
 }
 
-}
-.toggle-arrow{
-text-align:center;
-font-size:36px;   /* doubled size */
-color:#1E74F0;    /* MOL blue */
+.suggestion-box div{
+padding:10px;
 cursor:pointer;
-margin:4px 0 6px 0;
-user-select:none;
-transition:all 0.2s ease;
-line-height:1;
 }
 
-.toggle-arrow:hover{
-color:#164A9D;
-transform:translateY(2px);
+.suggestion-box div:hover{
+background:#eaf4ff;
 }
+
+.loader{
+display:none;
+justify-content:center;
+margin-top:25px;
+}
+
+.loader::after{
+content:"";
+width:50px;
+height:50px;
+border:6px solid #e3e3e3;
+border-top-color:#1E74F0;
+border-radius:50%;
+animation:spin 0.9s linear infinite;
+}
+
+@keyframes spin{
+to{ transform:rotate(360deg); }
+}
+
+.result-wrapper{
+display:none;
+margin-top:25px;
+background:#f7fbff;
+padding:15px;
+border-radius:12px;
+}
+
+.table-wrapper{
+width:100%;
+overflow-x:auto;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+min-width:900px;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #e2ecff;
+text-align:left;
+}
+
+th{
+background:#1E74F0;
+color:white;
+}
+
+td:nth-child(6){
+font-weight:bold;
+}
+
 </style>
 </head>
 
 <body>
-<div id="calculatorSection">
+
 <div class="card">
 
-  <div style="text-align:center; margin-bottom:10px;">
-    <img src="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/MOL%20Logo%2001.png"
-         style="height:35px; margin-bottom:5px;">
-    <div class="logo-text">MOL Logistics (INDIA) PVT. LTD.</div>
-  </div>
-
-  <h2>Freight Calculator</h2>
-
-  <div class="input-box">
-
-    <label>POL</label>
-    <div style="position:relative;">
-      <input id="polInput" placeholder="Type POL...">
-      <div id="polList" class="suggestion-box"></div>
-    </div>
-
-    <label>POD</label>
-    <div style="position:relative;">
-      <input id="podInput" placeholder="Type POD...">
-      <div id="podList" class="suggestion-box"></div>
-    </div>
-
-    <label>Container</label>
-    <select id="container">
-      <option value="">Select Container</option>
-      <option>20GP</option>
-      <option>40GP/HC</option>
-    </select>
-  </div>
-
-  <div class="loader" id="loader"></div>
-
-  <div class="result-wrapper" id="resultBox">
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Line</th><th>Freight</th><th>BAF</th><th>Sur.</th>
-            <th>Local</th><th>Total</th><th>Remark</th>
-            <th>Route</th><th>Validity</th>
-          </tr>
-        </thead>
-        <tbody id="resultBody"></tbody>
-      </table>
-    </div>
-  </div>
+<div style="text-align:center;margin-bottom:10px;">
+<img src="https://raw.githubusercontent.com/Aditya-tiwariMOL/freight-calculator/main/MOL%20Logo%2001.png"
+style="height:35px;margin-bottom:5px;">
+<div class="logo-text">MOL Logistics (INDIA) PVT. LTD.</div>
 </div>
+
+<h2>Freight Calculator</h2>
+
+<div class="input-box">
+
+<label>POL</label>
+<div style="position:relative;">
+<input id="polInput" placeholder="Type POL...">
+<div id="polList" class="suggestion-box"></div>
 </div>
-<div id="toggleCalc" class="toggle-arrow">▾</div>
-<div style="margin-top:30px;text-align:center;display:flex;gap:15px;justify-content:center;flex-wrap:wrap;">
 
-<button id="createEnquiryBtn" style="
-background:#ff6a00;
-color:white;
-border:none;
-padding:12px 20px;
-border-radius:8px;
-font-weight:bold;
-cursor:pointer;">
-Create Enquiry
-</button>
+<label>POD</label>
+<div style="position:relative;">
+<input id="podInput" placeholder="Type POD...">
+<div id="podList" class="suggestion-box"></div>
+</div>
 
-<button id="openEnquirySheet" style="
-background:#164A9D;
-color:white;
-border:none;
-padding:12px 20px;
-border-radius:8px;
-font-weight:bold;
-cursor:pointer;">
-Enquiry Sheet
-</button>
+<label>Container</label>
+<select id="container">
+<option value="">Select Container</option>
+<option>20GP</option>
+<option>40GP/HC</option>
+</select>
 
 </div>
-<div id="enquirySection" style="
-display:none;
-margin-top:30px;
-background:white;
-padding:15px;
-border-radius:10px;
-box-shadow:0 4px 12px rgba(0,0,0,0.08);
-">
 
-<h3 style="margin-bottom:15px;">Enquiry Dashboard</h3>
-<div style="overflow-x:auto;">
-<table style="width:100%;border-collapse:collapse;">
+<div class="loader" id="loader"></div>
+
+<div class="result-wrapper" id="resultBox">
+
+<div class="table-wrapper">
+<table>
 
 <thead>
-<tr style="background:#164A9D;color:white;">
-<th style="padding:10px;">Lead</th>
-<th>POL</th>
-<th>POD</th>
-<th>Container</th>
-<th>Volume</th>
-<th>Deadline</th>
-<th>Sales</th>
-<th>Price</th>
-<th>Status</th>
+<tr>
+<th>Line</th>
+<th>Freight</th>
+<th>BAF</th>
+<th>Sur.</th>
+<th>Local</th>
+<th>Total</th>
 <th>Remark</th>
-</tr>
+<th>Route</th>
+<th>Validity</th>
 </tr>
 </thead>
 
-<tbody id="enquiryTable">
-
-<tr id="enquiryLoaderRow" style="display:none;">
-<td colspan="8" style="padding:14px;color:#555;font-size:14px;">
-Loading...
-</td>
-</tr>
-
-</tbody>
+<tbody id="resultBody"></tbody>
 
 </table>
 </div>
 
 </div>
+
+</div>
+
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
 
-const polInput = document.getElementById("polInput");
-const podInput = document.getElementById("podInput");
-const container = document.getElementById("container");
-const polList = document.getElementById("polList");
-const podList = document.getElementById("podList");
-const loader = document.getElementById("loader");
-const resultBox = document.getElementById("resultBox");
-const resultBody = document.getElementById("resultBody");
-/* OPEN ENQUIRY SHEET BUTTON */
-document.getElementById("openEnquirySheet").onclick = loadEnquiries;
-document.getElementById("createEnquiryBtn").onclick = () => {
+const API_URL="https://script.google.com/macros/s/AKfycbxvRp16ShsJ0CHyzVC7TnuensTPsZSaXq4cbbqIfSeYx2xCNkNh4LDYrTf8BTR5x1Cq/exec";
 
-document.getElementById("enqPol").value = polInput.value;
-document.getElementById("enqPod").value = podInput.value;
-document.getElementById("enqContainer").value = container.value;
+const polInput=document.getElementById("polInput");
+const podInput=document.getElementById("podInput");
+const container=document.getElementById("container");
+const polList=document.getElementById("polList");
+const podList=document.getElementById("podList");
+const loader=document.getElementById("loader");
+const resultBox=document.getElementById("resultBox");
+const resultBody=document.getElementById("resultBody");
 
-document.getElementById("enquiryPopup").style.display="flex";
+let suppressSuggestions=false;
+
+function normalize(s){
+return s.toLowerCase().replace(/\s+/g,"");
+}
+
+function smartFilter(items,query){
+const q=normalize(query);
+if(!q) return items;
+
+return items.filter(it=>{
+const n=normalize(it);
+return n.includes(q) || n.startsWith(q.slice(0,3));
+});
+}
+
+function setupTypeAhead(input,box,items){
+
+input.oninput=()=>{
+
+if(suppressSuggestions) return;
+
+const list=smartFilter(items,input.value);
+
+if(!list.length){
+box.style.display="none";
+return;
+}
+
+box.innerHTML=list.map(x=>`<div>${x}</div>`).join("");
+
+box.style.display="block";
+
+box.querySelectorAll("div").forEach(d=>{
+d.onmousedown=()=>{
+suppressSuggestions=true;
+input.value=d.textContent;
+box.style.display="none";
+setTimeout(()=>suppressSuggestions=false,100);
+input.dispatchEvent(new Event("change"));
+};
+});
 
 };
 
-function closePopup(){
-document.getElementById("enquiryPopup").style.display="none";
-}
+input.onblur=()=>setTimeout(()=>box.style.display="none",150);
 
-async function submitEnquiry(){
-
-const btn = document.getElementById("submitBtn");
-
-/* prevent double click */
-if(btn.disabled) return;
-
-btn.disabled = true;
-btn.innerText = "Submitting...";
-
-const pol = document.getElementById("enqPol").value;
-const pod = document.getElementById("enqPod").value;
-const containerVal = document.getElementById("enqContainer").value;
-const lead = document.getElementById("leadStatus").value;
-const deadline = document.getElementById("deadline").value;
-const sales = document.getElementById("salesPic").value;
-const volume = document.getElementById("volume").value;
-const remarks = document.getElementById("remarks").value;
-try{
-
-const res = await fetch(API_URL+
-"?action=createEnquiry"+
-"&pol="+encodeURIComponent(pol)+
-"&pod="+encodeURIComponent(pod)+
-"&container="+encodeURIComponent(containerVal)+
-"&lead="+encodeURIComponent(lead)+
-"&deadline="+encodeURIComponent(deadline)+
-"&sales="+encodeURIComponent(sales)+
-"&volume="+encodeURIComponent(volume)+
-"&remarks="+encodeURIComponent(remarks)
-);
-
-const data = await res.json();
-
-btn.innerText = "Submitted ✓";
-
-setTimeout(()=>{
-
-alert("Enquiry Created: "+data.id);
-
-document.getElementById("deadline").value="";
-document.getElementById("leadStatus").value="Hot";
-
-closePopup();
-
-btn.disabled=false;
-btn.innerText="Submit";
-
-},800);
-
-}
-catch(err){
-
-alert("Error submitting enquiry");
-
-btn.disabled=false;
-btn.innerText="Submit";
-
-}
-
-}
-let suppressSuggestions = false;
-
-function normalize(s) {
-  return s.toLowerCase().replace(/\s+/g,"");
-}
-
-function smartFilter(items, query) {
-  const q = normalize(query);
-  if (!q) return items;
-  return items.filter(it => {
-    const n = normalize(it);
-    return n.includes(q) || n.startsWith(q.slice(0,3));
-  });
-}
-
-function setupTypeAhead(input, box, items) {
-  input.oninput = () => {
-    if (suppressSuggestions) return;
-    const list = smartFilter(items, input.value);
-    if (!list.length) return box.style.display="none";
-    box.innerHTML = list.map(x=>`<div>${x}</div>`).join("");
-    box.style.display="block";
-    box.querySelectorAll("div").forEach(d=>{
-      d.onmousedown = ()=>{
-        suppressSuggestions = true;
-        input.value = d.textContent;
-        box.style.display="none";
-        setTimeout(()=>suppressSuggestions=false,100);
-        input.dispatchEvent(new Event("change"));
-      };
-    });
-  };
-  input.onblur = ()=>setTimeout(()=>box.style.display="none",150);
 }
 
 (async()=>{
-  const pols = await fetch(API_URL+"?action=pol").then(r=>r.json());
-  setupTypeAhead(polInput, polList, pols);
+
+const pols=await fetch(API_URL+"?action=pol").then(r=>r.json());
+setupTypeAhead(polInput,polList,pols);
+
 })();
 
-polInput.onchange = async ()=>{
-  podInput.value="";
-  container.value="";
-  resultBox.style.display="none";
-  const pods = await fetch(API_URL+"?action=pod&pol="+encodeURIComponent(polInput.value)).then(r=>r.json());
-  setupTypeAhead(podInput, podList, pods);
-};
+polInput.onchange=async()=>{
 
-container.onchange = async ()=>{
-  if (!container.value) return;
-  loader.style.display="flex";
-  resultBox.style.display="none";
-  const rows = await fetch(API_URL+"?action=rates&pol="+encodeURIComponent(polInput.value)+"&pod="+encodeURIComponent(podInput.value)+"&container="+encodeURIComponent(container.value)).then(r=>r.json());
-  loader.style.display="none";
-  if (!rows.length) return;
-  resultBody.innerHTML = rows.map(r=>`
-    <tr>
-      <td>${r.carrier}</td><td>${r.freight}</td><td>${r.obs}</td>
-      <td>${r.surcharges}</td><td>${r.local}</td><td>${r.total}</td>
-      <td>${r.remark}</td><td>${r.routing}</td><td>${r.validity}</td>
-    </tr>`).join("");
-  resultBox.style.display="block";
-};
-async function loadEnquiries(){
+podInput.value="";
+container.value="";
+resultBox.style.display="none";
 
-document.getElementById("enquirySection").style.display="block";
-
-/* show loading row */
-document.getElementById("enquiryTable").innerHTML =
-'<tr><td colspan="8" style="padding:14px;color:#555;">Loading...</td></tr>';
-
-/* fetch enquiries */
-const rows = await fetch(API_URL+"?action=getenquiries")
+const pods=await fetch(API_URL+"?action=pod&pol="+encodeURIComponent(polInput.value))
 .then(r=>r.json());
 
-/* render table */
-document.getElementById("enquiryTable").innerHTML =
-rows.map(r=>`
+setupTypeAhead(podInput,podList,pods);
+
+};
+
+container.onchange=async()=>{
+
+if(!container.value) return;
+
+loader.style.display="flex";
+resultBox.style.display="none";
+
+const rows=await fetch(
+API_URL+"?action=rates"+
+"&pol="+encodeURIComponent(polInput.value)+
+"&pod="+encodeURIComponent(podInput.value)+
+"&container="+encodeURIComponent(container.value)
+).then(r=>r.json());
+
+loader.style.display="none";
+
+if(!rows.length) return;
+
+resultBody.innerHTML=rows.map(r=>`
 <tr>
-<td>${r.lead}</td>
-<td>${r.pol}</td>
-<td>${r.pod}</td>
-<td>${r.container}</td>
-<td>${r.volume || ""}</td>
-<td>${r.deadline}</td>
-<td>${r.sales}</td>
-<td>${r.price || ""}</td>
-<td>${r.status}</td>
-<td>${r.remark || ""}</td>
+<td>${r.carrier}</td>
+<td>${r.freight}</td>
+<td>${r.obs}</td>
+<td>${r.surcharges}</td>
+<td>${r.local}</td>
+<td>${r.total}</td>
+<td>${r.remark}</td>
+<td>${r.routing}</td>
+<td>${r.validity}</td>
 </tr>
 `).join("");
 
-}
-const toggleBtn = document.getElementById("toggleCalc");
-const calcSection = document.getElementById("calculatorSection");
-
-toggleBtn.onclick = function(){
-
-if(calcSection.style.display === "none"){
-
-calcSection.style.display = "block";
-toggleBtn.innerHTML = "▾";
-
-}else{
-
-calcSection.style.display = "none";
-toggleBtn.innerHTML = "▴";
-
-}
+resultBox.style.display="block";
 
 };
+
 </script>
-<div id="enquiryPopup" style="
-display:none;
-position:fixed;
-top:0;
-left:0;
-right:0;
-bottom:0;
-background:rgba(0,0,0,0.4);
-justify-content:center;
-align-items:center;
-z-index:1000;
-">
 
-<div class="popup-form" style="
-background:white;
-padding:28px;
-border-radius:16px;
-width:420px;
-max-width:95%;
-max-height:90vh;
-overflow-y:auto;
-box-shadow:0 10px 40px rgba(0,0,0,0.25);
-">
-
-<h3>Create Enquiry</h3>
-
-<label>POL</label>
-<input id="enqPol">
-
-<label>POD</label>
-<input id="enqPod">
-
-<label>Container</label>
-<select id="enqContainer">
-<option>20GP</option>
-<option>40GP/HC</option>
-</select>
-
-<label>Lead Status</label>
-<select id="leadStatus">
-<option>Hot</option>
-<option>Warm</option>
-<option>Cold</option>
-</select>
-
-<label>Deadline</label>
-<input type="datetime-local" id="deadline">
-
-<label>Sales PIC</label>
-<select id="salesPic">
-<option>Aditya T</option>
-<option>Abhishek J</option>
-<option>Prashant D</option>
-<option>Shubham T</option>
-<option>Kaustubh K</option>
-</select>
-
-<label>Volume (CBM)</label>
-<input id="volume" placeholder="Enter Volume">
-
-<label>Remarks</label>
-<input id="remarks" placeholder="Enter Remarks">
-        
-<div style="
-margin-top:22px;
-display:flex;
-justify-content:flex-end;
-gap:10px;
-padding-bottom:5px;
-">
-
-<button onclick="closePopup()" style="
-padding:10px 16px;
-border-radius:8px;
-border:1px solid #ccc;
-background:#f2f2f2;
-cursor:pointer;
-font-weight:500;
-">
-Cancel
-</button>
-
-<button id="submitBtn" onclick="submitEnquiry()" style="
-padding:10px 18px;
-border-radius:8px;
-border:none;
-background:#164A9D;
-color:white;
-cursor:pointer;
-font-weight:600;
-">
-Submit
-</button>
-
-</div>
-</div>
-</div>
 </body>
 </html>
