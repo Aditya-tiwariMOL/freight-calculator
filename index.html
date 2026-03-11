@@ -470,10 +470,12 @@ rows.map(r=>`
 <td>${r.pol}</td>
 <td>${r.pod}</td>
 <td>${r.container}</td>
+<td>${r.volume || ""}</td>
 <td>${r.deadline}</td>
 <td>${r.sales}</td>
 <td>${r.price || ""}</td>
 <td>${r.status}</td>
+<td>${r.remark || ""}</td>
 </tr>
 `).join("");
 
